@@ -12,11 +12,11 @@ struct Circle {
 
 template <typename T> struct Point {
   Vector2 v;
-  NPC *data;
+  T *data;
 };
 using namespace std;
 
-class QuadTree {
+template <typename T> class QuadTree {
   Rectangle bounds;
   bool divided = false;
   int size;
@@ -24,12 +24,12 @@ class QuadTree {
   QuadTree *ne;
   QuadTree *sw;
   QuadTree *se;
-  vector<Point<NPC>> points;
+  vector<Point<T>> points;
 
 public:
   QuadTree(Rectangle bounds, int size) : bounds(bounds), size(size){};
 
-  bool insert(Point<NPC> point) {
+  bool insert(Point<T> point) {
 
     if (!CheckCollisionPointRec(point.v, bounds)) {
       return false;
@@ -60,16 +60,16 @@ public:
     return false;
   }
   void subdivide() {
-    nw = new QuadTree(
+    nw = new QuadTree<T>(
         Rectangle{bounds.x, bounds.y, bounds.width / 2, bounds.height / 2},
         size);
-    ne = new QuadTree(Rectangle{bounds.x + bounds.width / 2, bounds.y,
+    ne = new QuadTree<T>(Rectangle{bounds.x + bounds.width / 2, bounds.y,
                                 bounds.width / 2, bounds.height / 2},
                       size);
-    sw = new QuadTree(Rectangle{bounds.x, bounds.y + bounds.height / 2,
+    sw = new QuadTree<T>(Rectangle{bounds.x, bounds.y + bounds.height / 2,
                                 bounds.width / 2, bounds.height / 2},
                       size);
-    se = new QuadTree(Rectangle{bounds.x + bounds.width / 2,
+    se = new QuadTree<T>(Rectangle{bounds.x + bounds.width / 2,
                                 bounds.y + bounds.height / 2, bounds.width / 2,
                                 bounds.height / 2},
                       size);
@@ -86,15 +86,15 @@ public:
     }
   }
 
-  vector<NPC *> query(Circle area) {
-    cout << "Querying for: " << area.center.x << ", " << area.center.y << endl;
-    cout << "Bounds: " << bounds.x << ", " << bounds.y << ", " << bounds.width
-         << ", " << bounds.height << endl;
+  vector<T*> query(Circle area) {
+    // cout << "Querying for: " << area.center.x << ", " << area.center.y << endl;
+    // cout << "Bounds: " << bounds.x << ", " << bounds.y << ", " << bounds.width
+    //      << ", " << bounds.height << endl;
     if (!CheckCollisionPointRec(area.center, bounds)) {
-      cout << "No Collision" << endl;
+      // cout << "No Collision" << endl;
       return {};
     }
-    vector<NPC *> found;
+    vector<T*> found;
     for (Point point : points) {
       if (CheckCollisionPointCircle(point.v, area.center, area.radius * 2)) {
         found.push_back(point.data);
@@ -102,10 +102,10 @@ public:
     }
 
     if (divided) {
-      vector<NPC *> nw_found = nw->query(area);
-      vector<NPC *> ne_found = ne->query(area);
-      vector<NPC *> sw_found = sw->query(area);
-      vector<NPC *> se_found = se->query(area);
+      vector<T *> nw_found = nw->query(area);
+      vector<T *> ne_found = ne->query(area);
+      vector<T *> sw_found = sw->query(area);
+      vector<T *> se_found = se->query(area);
 
       found.insert(found.end(), nw_found.begin(), nw_found.end());
       found.insert(found.end(), ne_found.begin(), ne_found.end());
