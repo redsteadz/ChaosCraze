@@ -99,45 +99,52 @@ public:
 
 class NPC_Interactions {
   vector<NPC *> npcList;
+  QuadTree *Q;
 
 public:
+  bool run = true;
   void AddNPC(NPC *npc) { npcList.push_back(npc); }
   void CheckCollisions() {
+    for (NPC *npc : npcList) {
+      bool flag = false;
+      Circle c = {npc->GetPos(), 60};
+      c.center.x += npc->GetRect().width / 2 - 10;
+      c.center.y += npc->GetRect().height / 2;
+      // DrawCircleLinesV(c.center, c.radius, RED);
+      vector<NPC *> collided = Q->query(c);
+      cout << npc->GetName() << " " << collided.size() << endl;
+      for (NPC *other : collided) {
+        if (other != npc) {
+          flag = true;
+          npc->setColliding(true);
+          other->setColliding(true);
+        }
+      }
 
-     }
+      if (!flag) {
+        npc->setColliding(false);
+      }
+    }
+    delete Q;
+  }
   void Draw() {
-    QuadTree Q(Rectangle{0, 0, width, height}, 4);
+    Q = new QuadTree(Rectangle{0, 0, width, height}, 4);
     for (NPC *npc : npcList) {
       npc->Draw();
-      Q.insert();
+      Point<NPC> p = {npc->GetPos(), npc};
+      Q->insert(p);
+      // cout << npc->GetName() << " " << p.v.x << " " << p.v.y << endl;
     }
+    // Q->Draw();
   }
   void Update() {
-    for (NPC *npc : npcList) {
-      npc->Update();
+    if (run) {
+      for (NPC *npc : npcList) {
+        npc->Update();
+      }
     }
   }
 };
-
-void HandleClick(vector<Vector2> &points, QuadTree &q) {
-  if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
-    Vector2 mousePos = GetMousePosition();
-    points.push_back(mousePos);
-    q.insert(mousePos);
-  }
-  if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) || IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
-    // Make a rectangle from the clicked point
-    Vector2 mousePos = GetMousePosition();
-    Rectangle rect = {mousePos.x, mousePos.y, 100, 100};
-    DrawRectangleLinesEx(rect, 1, WHITE);
-    vector<Vector2> found = q.query(rect);
-    // cout << "Found " << found.size() << " points" << endl;
-    for (Vector2 point : found) {
-      // cout << point.x << " " << point.y << endl;
-      DrawCircleLinesV(point, 4, BLUE);
-    }
-  }
-}
 
 int main(int argc, char *argv[]) {
   InitWindow(width, height, "raylib [models] example - npc Test");
@@ -164,12 +171,18 @@ int main(int argc, char *argv[]) {
   SetExitKey(0);
   SetTargetFPS(60);
   Rectangle bounds = {0, 0, width, height};
-  QuadTree q(bounds, 4);
+  // QuadTree q(bounds, 4);
   int stop = 0;
   vector<Vector2> points;
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(BLACK);
+    npcList.Draw();
+    npcList.Update();
+    npcList.CheckCollisions();
+    if (IsKeyPressed(KEY_SPACE)) {
+      npcList.run = !npcList.run;
+    }
 
     EndDrawing();
   }
