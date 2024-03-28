@@ -1,8 +1,10 @@
+#include "ds.h"
 #include <bits/stdc++.h>
 #include <cmath>
 #include <iostream>
 #include <raylib.h>
 #include <string>
+
 using namespace std;
 
 const int height = 600;
@@ -101,32 +103,13 @@ class NPC_Interactions {
 public:
   void AddNPC(NPC *npc) { npcList.push_back(npc); }
   void CheckCollisions() {
-    for (int i = 0; i < npcList.size(); i++) {
-      bool flag = false;
-      for (int j = 0; j < npcList.size(); j++) {
-        if (i == j) continue;
-        Vector2 npc1 = npcList[i]->GetPos();
-        npc1.x += npcList[i]->GetRect().width / 2 - 10;
-        npc1.y += npcList[i]->GetRect().height / 2;
 
-        Vector2 npc2 = npcList[j]->GetPos();
-        npc2.x += npcList[j]->GetRect().width / 2 - 10;
-        npc2.y += npcList[j]->GetRect().height / 2;
-
-        if (CheckCollisionCircles(npc1, 60, npc2, 60)) {
-          // cout << "Collision between " << npcList[i]->GetName() << " and "
-          //      << npcList[j]->GetName() << endl;
-          flag = true;
-          npcList[i]->setColliding(true);
-          npcList[j]->setColliding(true);
-        } 
-      }
-      if (!flag) npcList[i]->setColliding(false);
-    }
-  }
+     }
   void Draw() {
+    QuadTree Q(Rectangle{0, 0, width, height}, 4);
     for (NPC *npc : npcList) {
       npc->Draw();
+      Q.insert();
     }
   }
   void Update() {
@@ -135,6 +118,26 @@ public:
     }
   }
 };
+
+void HandleClick(vector<Vector2> &points, QuadTree &q) {
+  if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) || IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
+    Vector2 mousePos = GetMousePosition();
+    points.push_back(mousePos);
+    q.insert(mousePos);
+  }
+  if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON) || IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
+    // Make a rectangle from the clicked point
+    Vector2 mousePos = GetMousePosition();
+    Rectangle rect = {mousePos.x, mousePos.y, 100, 100};
+    DrawRectangleLinesEx(rect, 1, WHITE);
+    vector<Vector2> found = q.query(rect);
+    // cout << "Found " << found.size() << " points" << endl;
+    for (Vector2 point : found) {
+      // cout << point.x << " " << point.y << endl;
+      DrawCircleLinesV(point, 4, BLUE);
+    }
+  }
+}
 
 int main(int argc, char *argv[]) {
   InitWindow(width, height, "raylib [models] example - npc Test");
@@ -160,16 +163,14 @@ int main(int argc, char *argv[]) {
   npcList.AddNPC(&Girl);
   SetExitKey(0);
   SetTargetFPS(60);
+  Rectangle bounds = {0, 0, width, height};
+  QuadTree q(bounds, 4);
+  int stop = 0;
+  vector<Vector2> points;
   while (!WindowShouldClose()) {
     BeginDrawing();
-    // Man.Draw();
-    // Boy.Draw();
-    npcList.Draw();
-    npcList.Update();
-    npcList.CheckCollisions();
-    ClearBackground(RAYWHITE);
-    // Man.Update();
-    // Boy.Update();
+    ClearBackground(BLACK);
+
     EndDrawing();
   }
 
