@@ -111,13 +111,13 @@ public:
       c.center.x += npc->GetRect().width / 2 - 10;
       c.center.y += npc->GetRect().height / 2;
       // DrawCircleLinesV(c.center, c.radius, RED);
-      vector<NPC *> collided = Q->query(c);
+      vector<Point<NPC>> collided = Q->query(c);
       cout << npc->GetName() << " " << collided.size() << endl;
-      for (NPC *other : collided) {
-        if (other != npc) {
+      for (Point other : collided) {
+        if (other.data != npc) {
           flag = true;
           npc->setColliding(true);
-          other->setColliding(true);
+          other.data->setColliding(true);
         }
       }
 

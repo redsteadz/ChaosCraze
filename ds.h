@@ -36,6 +36,7 @@ public:
     }
     // cout << "Points size: " << points.size() << endl;
     if (points.size() < size) {
+      cout << point.v.x << " " << point.v.y << endl;
       points.push_back(point);
       return true;
     }
@@ -86,7 +87,7 @@ public:
     }
   }
 
-  vector<T*> query(Circle area) {
+  vector<Point<T>> query(Circle area) {
     // cout << "Querying for: " << area.center.x << ", " << area.center.y << endl;
     // cout << "Bounds: " << bounds.x << ", " << bounds.y << ", " << bounds.width
     //      << ", " << bounds.height << endl;
@@ -94,18 +95,19 @@ public:
       // cout << "No Collision" << endl;
       return {};
     }
-    vector<T*> found;
+    vector<Point<T>> found;
     for (Point point : points) {
-      if (CheckCollisionPointCircle(point.v, area.center, area.radius * 2)) {
-        found.push_back(point.data);
+      if (CheckCollisionPointCircle(point.v, area.center, area.radius*2)) {
+        cout << "Query Data" << point.v.x << " " << point.v.y << endl;
+        found.push_back(point);
       }
     }
 
     if (divided) {
-      vector<T *> nw_found = nw->query(area);
-      vector<T *> ne_found = ne->query(area);
-      vector<T *> sw_found = sw->query(area);
-      vector<T *> se_found = se->query(area);
+      vector<Point<T>> nw_found = nw->query(area);
+      vector<Point<T>> ne_found = ne->query(area);
+      vector<Point<T>> sw_found = sw->query(area);
+      vector<Point<T>> se_found = se->query(area);
 
       found.insert(found.end(), nw_found.begin(), nw_found.end());
       found.insert(found.end(), ne_found.begin(), ne_found.end());
