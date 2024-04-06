@@ -20,18 +20,23 @@ public:
     npcTexture = LoadTexture(texPath.c_str());
     texturePath = texPath;
   }
-  void Draw() { DrawTextureV(npcTexture, npcPosition, WHITE); }
+  void Draw() {
+     DrawTextureV(npcTexture, npcPosition, WHITE);
+   }
+   void Animate(){
+      
+   }
 };
 
 int main(int argc, char *argv[]) {
   InitWindow(width, height, "raylib [models] example - npc Test");
-  NPC Man = NPC("../assets/Villagers/3_Man/Man.png", {0, 0, 32, 32}, {0, 0}, 2.0);
+  NPC Man = NPC("../assets/Idle.png", {0, 0, 32, 32}, {0, 0}, 2.0);
   SetExitKey(0);
   SetTargetFPS(60);
   while (!WindowShouldClose()) {
     BeginDrawing();
     Man.Draw();
-    ClearBackground(RAYWHITE);
+    ClearBackground(BLACK);
     EndDrawing();
   }
 
