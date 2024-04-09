@@ -113,6 +113,7 @@ public:
       found.insert(found.end(), ne_found.begin(), ne_found.end());
       found.insert(found.end(), sw_found.begin(), sw_found.end());
       found.insert(found.end(), se_found.begin(), se_found.end());
+      
     }
     return found;
   }

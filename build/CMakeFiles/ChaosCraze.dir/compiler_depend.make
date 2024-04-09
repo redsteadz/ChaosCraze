@@ -3,6 +3,8 @@
 
 CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze/main.cpp \
   /home/red/Documents/ProjectsDit/ChaosCraze/ds.h \
+  /home/red/Documents/ProjectsDit/ChaosCraze/gui_Phone_Window.h \
+  /home/red/Documents/ProjectsDit/ChaosCraze/raygui.h \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
@@ -316,6 +318,7 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
   /usr/include/c++/13.2.1/list \
   /usr/include/c++/13.2.1/locale \
   /usr/include/c++/13.2.1/map \
+  /usr/include/c++/13.2.1/math.h \
   /usr/include/c++/13.2.1/memory \
   /usr/include/c++/13.2.1/memory_resource \
   /usr/include/c++/13.2.1/mutex \
@@ -338,6 +341,7 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
   /usr/include/c++/13.2.1/sstream \
   /usr/include/c++/13.2.1/stack \
   /usr/include/c++/13.2.1/stdexcept \
+  /usr/include/c++/13.2.1/stdlib.h \
   /usr/include/c++/13.2.1/streambuf \
   /usr/include/c++/13.2.1/string \
   /usr/include/c++/13.2.1/string_view \
@@ -549,6 +553,8 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 
 /usr/include/c++/13.2.1/memory:
 
+/usr/include/c++/13.2.1/math.h:
+
 /usr/include/c++/13.2.1/map:
 
 /usr/include/c++/13.2.1/locale:
@@ -643,8 +649,6 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 
 /usr/include/c++/13.2.1/cctype:
 
-/usr/include/c++/13.2.1/bits/basic_ios.tcc:
-
 /usr/include/c++/13.2.1/bits/atomic_lockfree_defines.h:
 
 /usr/include/c++/13.2.1/bits/stl_iterator.h:
@@ -715,6 +719,10 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 
 /usr/include/c++/13.2.1/bits/std_abs.h:
 
+/usr/include/c++/13.2.1/ccomplex:
+
+/usr/include/c++/13.2.1/bits/std_mutex.h:
+
 /usr/include/c++/13.2.1/bits/vector.tcc:
 
 /usr/include/c++/13.2.1/cuchar:
@@ -737,25 +745,11 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 
 /usr/include/bits/mathcalls.h:
 
+/usr/include/c++/13.2.1/stdlib.h:
+
 /usr/include/c++/13.2.1/bits/unique_ptr.h:
 
-/usr/include/c++/13.2.1/bits/std_mutex.h:
-
-/usr/include/c++/13.2.1/ccomplex:
-
 /usr/include/bits/types/__sigset_t.h:
-
-/usr/include/c++/13.2.1/algorithm:
-
-/usr/include/bits/mathcalls-helper-functions.h:
-
-/usr/include/c++/13.2.1/ostream:
-
-/usr/include/bits/types/__locale_t.h:
-
-/usr/include/c++/13.2.1/backward/auto_ptr.h:
-
-/usr/include/c++/13.2.1/bits/utility.h:
 
 /usr/include/c++/13.2.1/bits/this_thread_sleep.h:
 
@@ -779,11 +773,21 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 
 /usr/include/bits/struct_mutex.h:
 
+/home/red/Documents/ProjectsDit/ChaosCraze/gui_Phone_Window.h:
+
 /usr/include/bits/types/struct_tm.h:
 
 /usr/include/c++/13.2.1/bits/regex_automaton.tcc:
 
-/usr/include/bits/locale.h:
+/usr/include/bits/types/struct_timeval.h:
+
+/usr/include/bits/stdio_lim.h:
+
+/usr/include/c++/13.2.1/chrono:
+
+/usr/include/bits/types/__mbstate_t.h:
+
+/usr/include/bits/time.h:
 
 /usr/include/c++/13.2.1/bits/stl_list.h:
 
@@ -793,25 +797,11 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 
 /usr/include/bits/posix_opt.h:
 
+/usr/include/bits/locale.h:
+
 /usr/include/errno.h:
 
 /usr/include/bits/getopt_posix.h:
-
-/usr/include/bits/fp-logb.h:
-
-/usr/include/asm-generic/errno.h:
-
-/usr/include/c++/13.2.1/exception:
-
-/usr/include/c++/13.2.1/bits/gslice_array.h:
-
-/usr/include/c++/13.2.1/bits/hashtable_policy.h:
-
-/usr/include/bits/long-double.h:
-
-/usr/include/c++/13.2.1/bits/fs_path.h:
-
-/usr/include/c++/13.2.1/bits/shared_ptr.h:
 
 /usr/include/bits/floatn.h:
 
@@ -822,6 +812,30 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 /usr/include/bits/types/struct_FILE.h:
 
 /usr/include/bits/environments.h:
+
+/usr/include/c++/13.2.1/bits/allocated_ptr.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/libintl.h:
+
+/usr/include/bits/endianness.h:
+
+/usr/include/c++/13.2.1/variant:
+
+/usr/include/bits/types/sigval_t.h:
+
+/usr/include/c++/13.2.1/bits/exception_ptr.h:
+
+/usr/include/bits/libm-simd-decl-stubs.h:
+
+/usr/include/c++/13.2.1/cassert:
+
+/usr/include/c++/13.2.1/bits/locale_classes.tcc:
+
+/usr/include/c++/13.2.1/bits/memoryfwd.h:
+
+/usr/include/c++/13.2.1/bits/regex_scanner.tcc:
 
 /usr/include/bits/confname.h:
 
@@ -839,17 +853,51 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 
 /usr/include/c++/13.2.1/bits/concept_check.h:
 
-/usr/include/asm-generic/errno-base.h:
+/usr/include/bits/fp-logb.h:
 
-/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/stddef.h:
+/usr/include/asm-generic/errno.h:
 
-/usr/include/assert.h:
+/usr/include/c++/13.2.1/exception:
 
-/usr/include/c++/13.2.1/set:
+/usr/include/c++/13.2.1/bits/gslice_array.h:
 
-/usr/include/bits/xopen_lim.h:
+/usr/include/c++/13.2.1/bits/hashtable_policy.h:
 
-/usr/include/c++/13.2.1/bits/unique_lock.h:
+/usr/include/bits/long-double.h:
+
+/usr/include/c++/13.2.1/bits/fs_path.h:
+
+/usr/include/c++/13.2.1/bits/shared_ptr.h:
+
+/usr/include/c++/13.2.1/algorithm:
+
+/usr/include/bits/mathcalls-helper-functions.h:
+
+/usr/include/c++/13.2.1/ostream:
+
+/usr/include/bits/types/__locale_t.h:
+
+/usr/include/c++/13.2.1/backward/auto_ptr.h:
+
+/usr/include/c++/13.2.1/bits/utility.h:
+
+/usr/include/c++/13.2.1/limits:
+
+/usr/include/bits/types/struct_sigstack.h:
+
+/usr/include/bits/types/stack_t.h:
+
+/usr/include/bits/sigevent-consts.h:
+
+/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/stdbool.h:
+
+/usr/include/c++/13.2.1/bits/new_allocator.h:
+
+/usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/c++io.h:
+
+/usr/include/c++/13.2.1/bits/stl_relops.h:
+
+/usr/include/bits/endian.h:
 
 /usr/include/c++/13.2.1/bits/cxxabi_forced.h:
 
@@ -865,31 +913,17 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 
 /usr/include/bits/stdint-least.h:
 
-/usr/include/c++/13.2.1/x86_64-pc-linux-gnu/bits/c++io.h:
+/usr/include/asm-generic/errno-base.h:
 
-/usr/include/c++/13.2.1/bits/stl_relops.h:
+/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/stddef.h:
 
-/usr/include/bits/endian.h:
+/usr/include/assert.h:
 
-/usr/include/c++/13.2.1/variant:
+/usr/include/c++/13.2.1/set:
 
-/usr/include/bits/types/sigval_t.h:
+/usr/include/bits/xopen_lim.h:
 
-/usr/include/c++/13.2.1/bits/exception_ptr.h:
-
-/usr/include/bits/libm-simd-decl-stubs.h:
-
-/usr/include/c++/13.2.1/bits/memoryfwd.h:
-
-/usr/include/c++/13.2.1/bits/regex_scanner.tcc:
-
-/usr/include/c++/13.2.1/bits/allocated_ptr.h:
-
-/usr/include/bits/types.h:
-
-/usr/include/libintl.h:
-
-/usr/include/bits/endianness.h:
+/usr/include/c++/13.2.1/bits/unique_lock.h:
 
 /usr/include/bits/getopt_core.h:
 
@@ -955,14 +989,6 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 
 /usr/include/c++/13.2.1/bitset:
 
-/usr/include/bits/sigevent-consts.h:
-
-/usr/include/bits/types/stack_t.h:
-
-/usr/lib/gcc/x86_64-pc-linux-gnu/13.2.1/include/stdbool.h:
-
-/usr/include/c++/13.2.1/bits/new_allocator.h:
-
 /usr/include/uchar.h:
 
 /usr/include/bits/pthread_stack_min-dynamic.h:
@@ -1005,31 +1031,11 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 
 /usr/include/c++/13.2.1/bits/streambuf_iterator.h:
 
-/usr/include/c++/13.2.1/chrono:
-
-/usr/include/bits/types/__mbstate_t.h:
-
-/usr/include/bits/stdio_lim.h:
-
-/usr/include/bits/time.h:
-
 /usr/include/bits/local_lim.h:
 
 /usr/include/bits/libc-header-start.h:
 
 /usr/include/bits/siginfo-consts.h:
-
-/usr/include/bits/types/struct_timeval.h:
-
-/usr/include/c++/13.2.1/limits:
-
-/usr/include/bits/types/struct_sigstack.h:
-
-/usr/include/c++/13.2.1/bits/basic_string.h:
-
-/usr/include/bits/setjmp.h:
-
-/usr/include/c++/13.2.1/bits/regex_compiler.tcc:
 
 /usr/include/sys/select.h:
 
@@ -1041,6 +1047,8 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 
 /usr/include/bits/sigstksz.h:
 
+/home/red/Documents/ProjectsDit/ChaosCraze/raygui.h:
+
 /usr/include/c++/13.2.1/ext/numeric_traits.h:
 
 /usr/include/c++/13.2.1/bits/hashtable.h:
@@ -1048,6 +1056,14 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 /usr/include/bits/types/clockid_t.h:
 
 /usr/include/bits/stdint-intn.h:
+
+/usr/include/c++/13.2.1/bits/basic_ios.tcc:
+
+/usr/include/c++/13.2.1/bits/basic_string.h:
+
+/usr/include/bits/setjmp.h:
+
+/usr/include/c++/13.2.1/bits/regex_compiler.tcc:
 
 /usr/include/bits/posix2_lim.h:
 
@@ -1276,7 +1292,3 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: /home/red/Documents/ProjectsDit/ChaosCraze
 /usr/include/c++/13.2.1/bits/unordered_set.h:
 
 /usr/include/c++/13.2.1/bits/valarray_before.h:
-
-/usr/include/c++/13.2.1/bits/locale_classes.tcc:
-
-/usr/include/c++/13.2.1/cassert:

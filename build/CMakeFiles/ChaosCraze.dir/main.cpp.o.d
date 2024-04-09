@@ -313,4 +313,7 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: \
  /usr/include/c++/13.2.1/bits/fs_path.h \
  /usr/include/c++/13.2.1/bits/fs_dir.h \
  /usr/include/c++/13.2.1/bits/fs_ops.h \
- /usr/include/c++/13.2.1/memory_resource /usr/include/raylib.h
+ /usr/include/c++/13.2.1/memory_resource /usr/include/raylib.h \
+ /home/red/Documents/ProjectsDit/ChaosCraze/raygui.h \
+ /usr/include/c++/13.2.1/stdlib.h /usr/include/c++/13.2.1/math.h \
+ /home/red/Documents/ProjectsDit/ChaosCraze/gui_Phone_Window.h

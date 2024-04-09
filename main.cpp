@@ -1,5 +1,6 @@
 #include "ds.h"
 #include <bits/stdc++.h>
+// #include "Phone_Window.c"
 #include <cmath>
 #include <iostream>
 #include <raylib.h>
@@ -9,6 +10,7 @@ using namespace std;
 
 const int height = 600;
 const int width = 800;
+
 
 class NPC {
   string texturePath, name;
@@ -174,16 +176,17 @@ int main(int argc, char *argv[]) {
   // QuadTree q(bounds, 4);
   int stop = 0;
   vector<Vector2> points;
+  
   while (!WindowShouldClose()) {
+
     BeginDrawing();
-    ClearBackground(BLACK);
-    npcList.Draw();
+    ClearBackground(RAYWHITE);
+       npcList.Draw();
     npcList.Update();
     npcList.CheckCollisions();
     if (IsKeyPressed(KEY_SPACE)) {
       npcList.run = !npcList.run;
     }
-
     EndDrawing();
   }
 
