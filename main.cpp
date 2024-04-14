@@ -52,6 +52,7 @@ class NPC{
   int frameSpeed = 6;
   int frameCount = 0;
   int currentFrame = 0;
+  
     public:
     NPC(string texPath, Rectangle rec, Vector2 pos, float spd,string name,int age,int sent_val,int gender,Occupation &o,Actions act):name(name),age(age),sentiment_val(sent_val),gender(gender),occp(o),action(act){
     npcRectangle = rec;
@@ -59,10 +60,22 @@ class NPC{
     npcSpeed = spd;
     npcTexture = LoadTexture(texPath.c_str());
     texturePath = texPath;
+    
   }
   //draw
   void Draw() {
-     DrawTextureV(npcTexture, npcPosition, WHITE);
+    float frame_width=(float)npcTexture.width/4;
+    float timer=0.0f;
+    int frame=0;
+    int maxframe=(npcTexture.width/frame_width);
+    timer+=GetFrameTime();
+    if(timer>=0.2f)
+    {
+        timer=0.0f;
+        frame+=1;
+    }
+    frame=frame%maxframe;
+     DrawTextureRec(npcTexture,Rectangle{frame_width*frame,0,frame_width,(float)npcTexture.height},Vector2{20,20},RAYWHITE);
    }  
    //random pos update
    void update_pos()
@@ -175,7 +188,7 @@ class Game{
        //Adding values in npc obj;
        Occupation o1(1,"Musketeer");
        Actions act=WALK;
-    npcs.push_back(NPC("assets/Villagers/3_Man/Man.png",  {0, 0, 48, 48}, {0, 0}, 2.5,"Hamees",20,-1,1,o1,act));
+    npcs.push_back(NPC("assets/Villagers/3_Man/Man_attack",  {0, 0, 48, 48}, {0, 0}, 2.5,"Hamees",20,-1,1,o1,act));
     
     //till n no of npcs
     }
