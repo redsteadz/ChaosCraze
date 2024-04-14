@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/red/Documents/ProjectsDit/ChaosCraze/build",
+  "command": "/usr/bin/clang++ -g -o CMakeFiles/ChaosCraze.dir/main.cpp.o -c /home/red/Documents/ProjectsDit/ChaosCraze/main.cpp",
+  "file": "/home/red/Documents/ProjectsDit/ChaosCraze/main.cpp",
+  "output": "CMakeFiles/ChaosCraze.dir/main.cpp.o"
+}
+]
