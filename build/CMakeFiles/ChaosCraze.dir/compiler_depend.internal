@@ -3,8 +3,8 @@
 
 CMakeFiles/ChaosCraze.dir/main.cpp.o
  /home/red/Documents/ProjectsDit/ChaosCraze/main.cpp
+ /home/red/Documents/ProjectsDit/ChaosCraze/headers/UI.h
  /home/red/Documents/ProjectsDit/ChaosCraze/headers/ds.h
- /home/red/Documents/ProjectsDit/ChaosCraze/headers/gui_CameraButton.h
  /home/red/Documents/ProjectsDit/ChaosCraze/headers/gui_cameraToggle.h
  /home/red/Documents/ProjectsDit/ChaosCraze/headers/gui_phoneWindow.h
  /home/red/Documents/ProjectsDit/ChaosCraze/headers/raygui.h

@@ -57,7 +57,7 @@ extern "C" {            // Prevents name mangling of functions
 //----------------------------------------------------------------------------------
 GuiCameraToggleState InitGuiCameraToggle(void);
 void GuiCameraToggle(GuiCameraToggleState *state);
-
+Rectangle GetGuiCameraToggleBounds(void);
 
 #ifdef __cplusplus
 }
@@ -91,17 +91,21 @@ GuiCameraToggleState InitGuiCameraToggle(void)
 {
     GuiCameraToggleState state = { 0 };
 
-    state.Toggle000Active = true;
+    state.Toggle000Active = false;
 
     // Custom variables initialization
 
     return state;
 }
 
+Rectangle GetGuiCameraToggleBounds(void)
+{
+    return (Rectangle){ 24, 300 - 24, 48, 48 };
+}
 
 void GuiCameraToggle(GuiCameraToggleState *state)
 {
-    GuiToggle((Rectangle){ 24, 300 - 24, 48, 48 }, "#184#", &state->Toggle000Active);
+    GuiToggle(GetGuiCameraToggleBounds(), "#184#", &state->Toggle000Active);
 }
 
 #endif // GUI_CAMERATOGGLE_IMPLEMENTATION

@@ -35,14 +35,15 @@ typedef struct {
   Vector2 anchor02;
 
   bool PhoneBox001Active;
-  bool DropdownBox005EditMode;
-  int DropdownBox005Active;
-  bool DropdownBox003EditMode;
-  int DropdownBox003Active;
-  bool DropdownBox004EditMode;
-  int DropdownBox004Active;
+  bool DropdownNoun1Edit;
+  int DropdownNoun1Active;
+  bool DropdownConnectorEdit;
+  int DropdownConnectorActive;
+  bool DropdownNoun2Edit;
+  int DropdownNoun2Active;
 
   // Custom state variables (depend on development software)
+  Texture2D Image001;
   // NOTE: This variables should be added manually if required
 
 } GuiPhoneWindowState;
@@ -66,6 +67,9 @@ extern "C" { // Prevents name mangling of functions
 //----------------------------------------------------------------------------------
 GuiPhoneWindowState InitGuiPhoneWindow(void);
 void GuiPhoneWindow(GuiPhoneWindowState *state);
+Rectangle GuiGetPhoneBox001(void);
+void setImage001(Texture2D texture, GuiPhoneWindowState &state);
+
 static void Button005();
 
 #ifdef __cplusplus
@@ -79,11 +83,11 @@ static void Button005();
  *   GUI_PHONEWINDOW IMPLEMENTATION
  *
  ************************************************************************************/
+
 #if defined(GUI_PHONEWINDOW_IMPLEMENTATION)
 
 #include "raygui.h"
 #include <iostream>
-
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
@@ -99,59 +103,77 @@ static void Button005();
 //----------------------------------------------------------------------------------
 GuiPhoneWindowState InitGuiPhoneWindow(void) {
   GuiPhoneWindowState state = {0};
+  state.anchor02 = (Vector2){24, 300 - 24};
 
-  state.anchor02 = (Vector2){60, 328};
+  state.PhoneBox001Active = false;
+  state.DropdownNoun1Edit = false;
+  state.DropdownNoun1Active = 0;
+  state.DropdownConnectorEdit = false;
+  state.DropdownConnectorActive = 0;
+  state.DropdownNoun2Edit = false;
+  state.DropdownNoun2Active = 0;
 
-  state.PhoneBox001Active = true;
-  state.DropdownBox005EditMode = false;
-  state.DropdownBox005Active = 0;
-  state.DropdownBox003EditMode = false;
-  state.DropdownBox003Active = 0;
-  state.DropdownBox004EditMode = false;
-  state.DropdownBox004Active = 0;
-
+  // state.Image001 = LoadTexture("../assets/DefaultCapture.png");
   // Custom variables initialization
 
   return state;
 }
-static void Button005(int A, int B, int C) {
+
+Rectangle GuiGetPhoneBox001(void) {
+  return (Rectangle){24 + 0, 300 - 24 + -216, 304, 424};
+}
+
+static void Button005(int A, int B, int C, GuiPhoneWindowState &state) {
   // TODO: Implement control logic
   const char *text[] = {"Huffy", "Snuffy", "Abeera"};
   const char *text2[] = {"And", "Or", "Slaps"};
   std::cout << text[A] << " " << text2[B] << " " << text[C] << std::endl;
+  if (IsTextureReady(state.Image001))
+    UnloadTexture(state.Image001);
+  Image screenShot = LoadImage("../assets/DefaultCapture.png");
+  ImageResize(&screenShot, 250, 180);
+  state.Image001 = LoadTextureFromImage(screenShot);
+  UnloadImage(screenShot);
 }
 
 void GuiPhoneWindow(GuiPhoneWindowState *state) {
-  if (state->DropdownBox005EditMode || state->DropdownBox003EditMode ||
-      state->DropdownBox004EditMode)
+  if (state->DropdownNoun1Edit || state->DropdownConnectorEdit ||
+      state->DropdownNoun2Edit)
     GuiLock();
 
   if (state->PhoneBox001Active) {
+
     state->PhoneBox001Active = !GuiWindowBox(
         (Rectangle){state->anchor02.x + 0, state->anchor02.y + -216, 304, 424},
         "Phone");
     GuiGroupBox(
         (Rectangle){state->anchor02.x + 24, state->anchor02.y + -160, 256, 200},
         "IMAGE");
+    if (IsTextureReady(state->Image001)) {
+      DrawTextureV(state->Image001,
+                   Vector2{state->anchor02.x + 26, state->anchor02.y + -156},
+                   WHITE);
+    }
     if (GuiDropdownBox(
             (Rectangle){state->anchor02.x + 32, state->anchor02.y + 56, 80, 24},
-            "Huffy;Snuffy;Abeera", &state->DropdownBox005Active,
-            state->DropdownBox005EditMode))
-      state->DropdownBox005EditMode = !state->DropdownBox005EditMode;
+            "Huffy;Snuffy;Abeera", &state->DropdownNoun1Active,
+            state->DropdownNoun1Edit))
+      state->DropdownNoun1Edit = !state->DropdownNoun1Edit;
     if (GuiDropdownBox((Rectangle){state->anchor02.x + 112,
                                    state->anchor02.y + 56, 80, 24},
-                       "And;Or;Slaps", &state->DropdownBox003Active,
-                       state->DropdownBox003EditMode))
-      state->DropdownBox003EditMode = !state->DropdownBox003EditMode;
+                       "And;Or;Slaps", &state->DropdownConnectorActive,
+                       state->DropdownConnectorEdit))
+      state->DropdownConnectorEdit = !state->DropdownConnectorEdit;
     if (GuiDropdownBox((Rectangle){state->anchor02.x + 192,
                                    state->anchor02.y + 56, 80, 24},
-                       "Huffy;Snuffy;Abeera", &state->DropdownBox004Active,
-                       state->DropdownBox004EditMode))
-      state->DropdownBox004EditMode = !state->DropdownBox004EditMode;
+                       "Huffy;Snuffy;Abeera", &state->DropdownNoun2Active,
+                       state->DropdownNoun2Edit))
+      state->DropdownNoun2Edit = !state->DropdownNoun2Edit;
     if (GuiButton((Rectangle){state->anchor02.x + 192, state->anchor02.y + 160,
                               88, 32},
                   "POST"))
-      Button005( state->DropdownBox005Active,state->DropdownBox003Active, state->DropdownBox004Active);
+      Button005(state->DropdownNoun1Active, state->DropdownConnectorActive,
+                state->DropdownNoun2Active, *state);
   }
 
   GuiUnlock();

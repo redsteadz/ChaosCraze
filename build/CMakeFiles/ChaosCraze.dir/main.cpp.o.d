@@ -314,9 +314,8 @@ CMakeFiles/ChaosCraze.dir/main.cpp.o: \
  /usr/include/c++/13.2.1/bits/fs_dir.h \
  /usr/include/c++/13.2.1/bits/fs_ops.h \
  /usr/include/c++/13.2.1/memory_resource /usr/include/raylib.h \
+ /home/red/Documents/ProjectsDit/ChaosCraze/headers/UI.h \
  /home/red/Documents/ProjectsDit/ChaosCraze/headers/raygui.h \
  /usr/include/c++/13.2.1/stdlib.h /usr/include/c++/13.2.1/math.h \
- /home/red/Documents/ProjectsDit/ChaosCraze/headers/gui_CameraButton.h \
- /home/red/Documents/ProjectsDit/ChaosCraze/headers/raygui.h \
- /home/red/Documents/ProjectsDit/ChaosCraze/headers/gui_phoneWindow.h \
- /home/red/Documents/ProjectsDit/ChaosCraze/headers/gui_cameraToggle.h
+ /home/red/Documents/ProjectsDit/ChaosCraze/headers/gui_cameraToggle.h \
+ /home/red/Documents/ProjectsDit/ChaosCraze/headers/gui_phoneWindow.h

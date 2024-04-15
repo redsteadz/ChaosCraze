@@ -1,14 +1,16 @@
 #include "headers/ds.h"
 #include <bits/stdc++.h>
-#define RAYGUI_IMPLEMENTATION
-#define GUI_CAMERABUTTON_IMPLEMENTATION
-#define GUI_PHONEWINDOW_IMPLEMENTATION
-#define GUI_CAMERATOGGLE_IMPLEMENTATION
-#include "headers/raygui.h"
+// #define RAYGUI_IMPLEMENTATION
+// #define GUI_CAMERABUTTON_IMPLEMENTATION
+// #define GUI_PHONEWINDOW_IMPLEMENTATION
+// #define GUI_CAMERATOGGLE_IMPLEMENTATION
+// #include "headers/raygui.h"
+//
+// #include "headers/gui_CameraButton.h"
+// #include "headers/gui_phoneWindow.h"
+// #include "headers/gui_cameraToggle.h"
 
-#include "headers/gui_CameraButton.h"
-#include "headers/gui_phoneWindow.h"
-#include "headers/gui_cameraToggle.h"
+#include "headers/UI.h"
 
 #include <cmath>
 #include <iostream>
@@ -122,7 +124,7 @@ public:
       c.center.y += npc->GetRect().height / 2;
       // DrawCircleLinesV(c.center, c.radius, RED);
       vector<Point<NPC>> collided = Q->query(c);
-      cout << npc->GetName() << " " << collided.size() << endl;
+      // cout << npc->GetName() << " " << collided.size() << endl;
       for (Point other : collided) {
         if (other.data != npc) {
           flag = true;
@@ -184,26 +186,18 @@ int main(int argc, char *argv[]) {
   // QuadTree q(bounds, 4);
   int stop = 0;
   vector<Vector2> points;
-  GuiCameraButtonState cameraButtonState = InitGuiCameraButton();
-  GuiPhoneWindowState state = InitGuiPhoneWindow();
-  GuiCameraToggleState state2 = InitGuiCameraToggle();
+  UI ui;
   while (!WindowShouldClose()) {
-
+    ui.HandleCapture();
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    //    npcList.Draw();
-    // npcList.Update();
-    // npcList.CheckCollisions();
-    // if (IsKeyPressed(KEY_SPACE)) {
-    //   npcList.run = !npcList.run;
-    // }
-    bool PhoneWindow = true;
-    // GuiCameraButton(&cameraButtonState, &state.PhoneBox001Active);
-    GuiCameraToggle(&state2);
-    state.PhoneBox001Active = state2.Toggle000Active;
-    GuiPhoneWindow(&state);
-    state2.Toggle000Active = state.PhoneBox001Active;
-
+       npcList.Draw();
+    npcList.Update();
+    npcList.CheckCollisions();
+    if (IsKeyPressed(KEY_SPACE)) {
+      npcList.run = !npcList.run;
+    }
+    ui.Draw();
     EndDrawing();
   }
 
