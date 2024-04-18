@@ -6,35 +6,138 @@
 using namespace std;
 const int width = 800;
 const int height = 600;
-
-class Occupation{
-    int id;
-    string name;
-    public:
-    Occupation(int i,string n):id(i),name(n){}
-    int getid()
-    {
-        return id;
-    }
-    string getName()
-    {
-        return name;
-    }
-    void setId(int i){
-        id=i;
-    }
-    void setName(string n){
-        name=n;
-    }
+enum STATE{
+    attack,
+    walk,
+    idle,
+    hurt
 };
-enum Actions{
-    WALK=1,
-    RUN=2,
-    SLAP=3,
-    ATTACK=4,
-    DIE=5
+class NPC_Walk{
+    public:
+    void Random_walk()
+    {
+       
+    }
 };
 class NPC{
+    NPC_Walk npc_walk;
+    STATE state;
+    int sentiment;
+    int age;
+    string occupation;
+    string texturePath;
+    string name;
+  Texture2D npcTexture;
+  Rectangle npcRectangle;
+  Vector2 npcPosition;
+  bool colliding = false;
+  float direction = 0.0f;
+  bool isMoving = false;
+  int flip = 0;
+  int frameSpeed = 6;
+  int frameCount = 0;
+  int currentFrame = 0;
+  float npcSpeed;
+
+public:
+  NPC(string texPath, string _name,Rectangle rec, Vector2 pos, float spd,STATE state,int sentiment,int age,string occupation) {
+    npcRectangle = rec;
+    npcPosition = pos;
+    npcSpeed = spd;
+    texturePath = texPath;
+    name=_name;
+    npcTexture = LoadTexture((texturePath + "/" + name + ".png").c_str());
+    this->state=state;
+    this->sentiment=sentiment;
+    this->age=age;
+    this->occupation=occupation;
+  }
+  
+  void setState(STATE s)
+  {
+     state=s;
+     UnloadTexture(npcTexture);
+     switch (s)
+     {
+     case attack:
+        npcTexture = LoadTexture((texturePath + "/" + name + "_attack.png").c_str());
+        Animate();
+        break;
+     case walk:
+        npcTexture = LoadTexture((texturePath + "/" + name + "_walk.png").c_str());
+        Animate();
+        break;
+     case idle:
+        npcTexture = LoadTexture((texturePath + "/" + name + ".png").c_str());
+        Animate();
+        break;
+     case hurt:
+        npcTexture = LoadTexture((texturePath + "/" + name + "_hurt.png").c_str());  
+        Animate();    
+        break;
+     default:
+        break;
+     }
+     
+  }
+  void Draw()
+  {
+    if (flip) {
+      Rectangle npcFlipped = npcRectangle;
+      npcFlipped.x =
+          npcRectangle.x + npcRectangle.width; // Set x-coordinate to right edge
+      npcFlipped.x -= 20;
+      npcFlipped.width =
+          -npcRectangle.width; // Invert width to flip horizontally
+      DrawTextureRec(npcTexture, npcFlipped, npcPosition, WHITE);
+    } else {
+      DrawTextureRec(npcTexture, npcRectangle, npcPosition, WHITE);
+    }
+  }
+void Animate()
+{
+    static bool animationFinished = false;
+    static float timer = 0.0f;
+    static int frame = 0;
+    if (!animationFinished)
+    {
+        float frameWidth = 0;
+        if (npcTexture.width > 0 && npcTexture.height > 0)
+        {
+            int numTextures = npcTexture.width / npcTexture.height;
+            if (numTextures > 0)
+            {
+                frameWidth = static_cast<float>(npcTexture.width / numTextures);
+            }
+        }
+        int maxFrames = static_cast<int>(npcTexture.width / frameWidth);
+
+        timer += GetFrameTime();
+        if (timer >= 0.2f)
+        {
+            timer = 0.0f;
+            frame += 1;
+        }
+        if (frame >= maxFrames)
+        {
+            frame = 0;
+            animationFinished = true; 
+        }
+        DrawTextureRec(
+            npcTexture,
+            Rectangle{frameWidth * frame, 0, frameWidth, static_cast<float>(npcTexture.height)},
+            Vector2{20, 20},
+            RAYWHITE
+        );
+    }
+}
+
+
+  
+
+};
+
+/*class NPC{
     Actions action;
     string name;
     int age;
@@ -150,6 +253,7 @@ class NPC{
    void Update() {
         switch(action) {
             case WALK:
+            
                 animate_walk();
                 random_move();
                 break;
@@ -179,16 +283,16 @@ class NPC{
         DrawTextureV(npcTexture, npcPosition,tint);
     }
     
-};
+};*/
 class Game{
     vector<NPC> npcs;
    public:
     void Create()
     {
        //Adding values in npc obj;
-       Occupation o1(1,"Musketeer");
-       Actions act=WALK;
-    npcs.push_back(NPC("assets/Villagers/3_Man/Man_attack",  {0, 0, 48, 48}, {0, 0}, 2.5,"Hamees",20,-1,1,o1,act));
+       
+       STATE state=idle;
+   // npcs.push_back(NPC("assets/Villagers/3_Man", "Man", {0, 0, 48, 48}, {40, 40}, 2.5,state,-1,17,"Man"));
     
     //till n no of npcs
     }
@@ -196,20 +300,23 @@ class Game{
     {
          for(int i=0;i<npcs.size();i++)
          {
-            npcs[i].Update();
+          STATE state=attack;
+           npcs[i].setState(state);
          }
     }
     void Draw()
     {
         for(int i=0;i<npcs.size();i++)
         {
+            STATE state=attack;
             npcs[i].Draw();
+            npcs[i].setState(state);
         }
     }
    void ProcessNPCs(vector<NPC> &npcs){
        for(int i=0;i<npcs.size();i++)
        {
-        npcs[i].Update();
+      //  npcs[i].Update();
        }
    }
 };
@@ -218,13 +325,17 @@ int main()
     InitWindow(width, height, "My first RAYLIB program!");
     SetTargetFPS(60);
     Game g;
-    g.Create();
+    //g.Create();
+    //g.Draw();
+    STATE state=idle;
+    NPC n("assets/Villagers/3_Man", "Man", {0, 0, 48, 48}, {40, 40}, 2.5,state,-1,17,"Man");
     while (!WindowShouldClose())
     {
         BeginDrawing();
         ClearBackground(BLACK);
-        g.Draw();
-        g.Update();
+       // g.Update();
+       STATE state=attack;
+       n.setState(state);
         EndDrawing();
     }
 
