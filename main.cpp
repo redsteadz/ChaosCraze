@@ -96,40 +96,34 @@ public:
   }
 void Animate()
 {
-    static bool animationFinished = false;
-    static float timer = 0.0f;
-    static int frame = 0;
-    if (!animationFinished)
+   
+    static float timer = 0.0f; 
+    static int frame = 0;      
+    float frameWidth = 0;
+    if (npcTexture.width > 0 && npcTexture.height > 0)
     {
-        float frameWidth = 0;
-        if (npcTexture.width > 0 && npcTexture.height > 0)
+        int numTextures = npcTexture.width / npcTexture.height;
+        if (numTextures > 0)
         {
-            int numTextures = npcTexture.width / npcTexture.height;
-            if (numTextures > 0)
-            {
-                frameWidth = static_cast<float>(npcTexture.width / numTextures);
-            }
+            frameWidth = static_cast<float>(npcTexture.width / numTextures);
         }
-        int maxFrames = static_cast<int>(npcTexture.width / frameWidth);
-
-        timer += GetFrameTime();
-        if (timer >= 0.2f)
-        {
-            timer = 0.0f;
-            frame += 1;
-        }
-        if (frame >= maxFrames)
-        {
-            frame = 0;
-            animationFinished = true; 
-        }
-        DrawTextureRec(
-            npcTexture,
-            Rectangle{frameWidth * frame, 0, frameWidth, static_cast<float>(npcTexture.height)},
-            Vector2{20, 20},
-            RAYWHITE
-        );
     }
+    int maxFrames = static_cast<int>(npcTexture.width / frameWidth);
+
+    timer += GetFrameTime();
+    if (timer >= 0.2f)
+    {
+        timer = 0.0f;
+        frame += 1;
+    }
+    frame = frame % maxFrames;
+    DrawTextureRec(
+        npcTexture,
+        Rectangle{frameWidth * frame, 0, frameWidth, static_cast<float>(npcTexture.height)},
+        Vector2{20, 20},
+        RAYWHITE
+    );
+
 }
 
 
