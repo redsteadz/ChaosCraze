@@ -8,40 +8,54 @@ const int width = 800;
 const int height = 600;
 enum STATE { attack, walk, idle, hurt };
 
-class NPC_Physics {
-  Vector2 npcPosition;
-  bool colliding = false;
-  float direction = 0.0f;
-  bool isMoving = false;
-  int flip = 0;
-  float npcSpeed;
-public:
-  void Random_walk() {
-          direction += (rand() % 100 - 50) *
-                   0.01f; // Adjust the range and step size as needed
-
-      // Calculate movement vector based on direction
-      Vector2 movement = {npcSpeed * cos(direction), npcSpeed * sin(direction)};
-
-      // Update NPC position
-      npcPosition.x += movement.x;
-      npcPosition.y += movement.y;
-  }
-  friend class NPC;
-};
-
-class NPC : public NPC_Physics {
-
+class NPC_Characteristics {
   STATE state;
   int sentiment;
   int age;
   string occupation;
   string name;
 
+public:
+  friend class NPC;
+};
+
+class NPC_Physics {
+  Vector2 npcPosition;
+  bool colliding = false;
+  float direction = 0.0f;
+  Rectangle npcRectangle;
+  int flip = 0;
+  float npcSpeed;
+
+public:
+  void Random_walk() {
+    direction +=
+        (rand() % 100 - 50) * 0.01f; // Adjust the range and step size as needed
+
+    // Calculate movement vector based on direction
+    Vector2 movement = {npcSpeed * cos(direction), npcSpeed * sin(direction)};
+
+    // Update NPC position
+    npcPosition.x += movement.x;
+    npcPosition.y += movement.y;
+    if (movement.x < 0.0f) {
+      flip = 1;
+    } else {
+      flip = 0;
+    }
+    // Ensure NPC stays within the screen boundaries
+    npcPosition.x = fmax(fmin(npcPosition.x, width - npcRectangle.width), 0);
+    npcPosition.y = fmax(fmin(npcPosition.y, height - npcRectangle.height), 0);
+  }
+  friend class NPC;
+};
+
+class NPC : public NPC_Physics, NPC_Characteristics {
+
+  bool isMoving = false;
+
   string texturePath;
   Texture2D npcTexture;
-  Rectangle npcRectangle;
-
 
   int frameSpeed = 6;
   int frameCount = 0;
@@ -59,7 +73,7 @@ public:
     this->state = state;
     this->sentiment = sentiment;
     this->age = age;
-    
+
     this->occupation = occupation;
   }
 
@@ -85,21 +99,24 @@ public:
     default:
       break;
     }
+    if (state == walk)
+      isMoving = true;
+    else
+      isMoving = false;
+    npcRectangle = {0, 0, (float)npcTexture.height, (float)npcTexture.height};
   }
   void Draw() {
     if (flip) {
-      Rectangle npcFlipped = npcRectangle;
-      npcFlipped.x =
-          npcRectangle.x + npcRectangle.width; // Set x-coordinate to right edge
-      npcFlipped.x -= 20;
-      npcFlipped.width =
-          -npcRectangle.width; // Invert width to flip horizontally
-      DrawTextureRec(npcTexture, npcFlipped, npcPosition, WHITE);
+      DrawTextureRec(npcTexture, flippedTexture(), npcPosition, WHITE);
     } else {
       DrawTextureRec(npcTexture, npcRectangle, npcPosition, WHITE);
     }
+  }
+  void Update() {
     Animate();
-    Random_walk();
+    if (isMoving)
+      Random_walk();
+    Draw();
   }
   void Animate() {
 
@@ -120,7 +137,18 @@ public:
       frame += 1;
     }
     frame = frame % maxFrames;
-    npcRectangle = {frame * frameWidth, 0, frameWidth, (float)npcTexture.height};
+    npcRectangle = {frame * frameWidth, 0, frameWidth,
+                    (float)npcTexture.height};
+  }
+
+private:
+  Rectangle flippedTexture() {
+    Rectangle npcFlipped = npcRectangle;
+    npcFlipped.x =
+        npcRectangle.x + npcRectangle.width; // Set x-coordinate to right edge
+    npcFlipped.x -= 20;
+    npcFlipped.width = -npcRectangle.width; // Invert width to flip horizontally
+    return npcFlipped;
   }
 };
 
@@ -174,7 +202,7 @@ int main() {
     if (IsKeyPressed(KEY_SPACE)) {
       n.setState(state_list[(++stateC) % 4]);
     }
-    n.Draw();
+    n.Update();
     EndDrawing();
   }
 
