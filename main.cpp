@@ -62,15 +62,14 @@ class NPC : public NPC_Physics, NPC_Characteristics {
   int currentFrame = 0;
 
 public:
-  NPC(string texPath, string _name, Vector2 pos, float spd, STATE state,
+  NPC(string folderPath, string _name, Vector2 pos, float spd, STATE state,
       int sentiment, int age, string occupation) {
     npcPosition = pos;
     npcSpeed = spd;
-    texturePath = texPath;
+    texturePath = folderPath + "/" + _name;
     name = _name;
-    npcTexture = LoadTexture((texturePath + "/" + name + ".png").c_str());
+    setState(state);
     npcRectangle = {0, 0, (float)npcTexture.height, (float)npcTexture.height};
-    this->state = state;
     this->sentiment = sentiment;
     this->age = age;
 
@@ -82,19 +81,16 @@ public:
     UnloadTexture(npcTexture);
     switch (s) {
     case attack:
-      npcTexture =
-          LoadTexture((texturePath + "/" + name + "_attack.png").c_str());
+      npcTexture = LoadTexture((texturePath + "_attack.png").c_str());
       break;
     case walk:
-      npcTexture =
-          LoadTexture((texturePath + "/" + name + "_walk.png").c_str());
+      npcTexture = LoadTexture((texturePath + "_walk.png").c_str());
       break;
     case idle:
-      npcTexture = LoadTexture((texturePath + "/" + name + ".png").c_str());
+      npcTexture = LoadTexture((texturePath + "_idle.png").c_str());
       break;
     case hurt:
-      npcTexture =
-          LoadTexture((texturePath + "/" + name + "_hurt.png").c_str());
+      npcTexture = LoadTexture((texturePath + "_hurt.png").c_str());
       break;
     default:
       break;
@@ -146,7 +142,7 @@ private:
     Rectangle npcFlipped = npcRectangle;
     npcFlipped.x =
         npcRectangle.x + npcRectangle.width; // Set x-coordinate to right edge
-    npcFlipped.x -= 20;
+    npcFlipped.x -= 24;
     npcFlipped.width = -npcRectangle.width; // Invert width to flip horizontally
     return npcFlipped;
   }
