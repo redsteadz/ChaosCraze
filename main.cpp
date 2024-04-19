@@ -13,10 +13,19 @@ class NPC_Physics {
   bool colliding = false;
   float direction = 0.0f;
   bool isMoving = false;
+  int flip = 0;
   float npcSpeed;
 public:
   void Random_walk() {
-    
+          direction += (rand() % 100 - 50) *
+                   0.01f; // Adjust the range and step size as needed
+
+      // Calculate movement vector based on direction
+      Vector2 movement = {npcSpeed * cos(direction), npcSpeed * sin(direction)};
+
+      // Update NPC position
+      npcPosition.x += movement.x;
+      npcPosition.y += movement.y;
   }
   friend class NPC;
 };
@@ -34,7 +43,6 @@ class NPC : public NPC_Physics {
   Rectangle npcRectangle;
 
 
-  int flip = 0;
   int frameSpeed = 6;
   int frameCount = 0;
   int currentFrame = 0;
@@ -51,6 +59,7 @@ public:
     this->state = state;
     this->sentiment = sentiment;
     this->age = age;
+    
     this->occupation = occupation;
   }
 
@@ -61,21 +70,17 @@ public:
     case attack:
       npcTexture =
           LoadTexture((texturePath + "/" + name + "_attack.png").c_str());
-      // Animate();
       break;
     case walk:
       npcTexture =
           LoadTexture((texturePath + "/" + name + "_walk.png").c_str());
-      // Animate();
       break;
     case idle:
       npcTexture = LoadTexture((texturePath + "/" + name + ".png").c_str());
-      // Animate();
       break;
     case hurt:
       npcTexture =
           LoadTexture((texturePath + "/" + name + "_hurt.png").c_str());
-      // Animate();
       break;
     default:
       break;
@@ -94,6 +99,7 @@ public:
       DrawTextureRec(npcTexture, npcRectangle, npcPosition, WHITE);
     }
     Animate();
+    Random_walk();
   }
   void Animate() {
 
@@ -114,10 +120,7 @@ public:
       frame += 1;
     }
     frame = frame % maxFrames;
-    DrawTextureRec(npcTexture,
-                   Rectangle{frameWidth * frame, 0, frameWidth,
-                             static_cast<float>(npcTexture.height)},
-                   Vector2{20, 20}, RAYWHITE);
+    npcRectangle = {frame * frameWidth, 0, frameWidth, (float)npcTexture.height};
   }
 };
 
@@ -171,7 +174,7 @@ int main() {
     if (IsKeyPressed(KEY_SPACE)) {
       n.setState(state_list[(++stateC) % 4]);
     }
-    n.Animate();
+    n.Draw();
     EndDrawing();
   }
 
