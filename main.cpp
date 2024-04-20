@@ -16,7 +16,45 @@ class NPC_Characteristics {
   string name;
 
 public:
+NPC_Characteristics(STATE state,int sentiment,int age,string occupation,string name){
+  this->state;
+  this->sentiment;
+  this->age=age;
+  this->occupation=occupation;
+  this->name=name;
+}
   friend class NPC;
+  virtual void setState(STATE s){
+    this->state=s;
+  }
+  int getSentiment(){
+    return sentiment;
+  }
+  int getAge(){
+    return age;
+  }
+  string getOccupation(){
+    return occupation;
+  }
+  string getName(){
+       return name;
+  }
+  STATE getState(){
+    return state;
+  }
+  void setName(string name){
+    this->name=name;
+  }
+  void setAge(int age){
+    this->age=age;
+  }
+  void setOccupation(string occupation){
+     this->occupation=occupation;
+  }
+  void setSentiment(int sentiment){
+    this->sentiment=sentiment;
+  }
+  
 };
 
 class NPC_Physics {
@@ -56,27 +94,21 @@ class NPC : public NPC_Physics, NPC_Characteristics {
 
   string texturePath;
   Texture2D npcTexture;
-
   int frameSpeed = 6;
   int frameCount = 0;
   int currentFrame = 0;
 
 public:
   NPC(string folderPath, string _name, Vector2 pos, float spd, STATE state,
-      int sentiment, int age, string occupation) {
-    npcPosition = pos;
+      int sentiment, int age, string occupation):NPC_Characteristics(state,sentiment,age,occupation,_name){
     npcSpeed = spd;
     texturePath = folderPath + "/" + _name;
-    name = _name;
     setState(state);
-    npcRectangle = {0, 0, (float)npcTexture.height, (float)npcTexture.height};
-    this->sentiment = sentiment;
-    this->age = age;
-
-    this->occupation = occupation;
+    npcPosition=pos;
+    npcRectangle={0, 0, (float)npcTexture.height, (float)npcTexture.height};
   }
 
-  void setState(STATE s) {
+  void setState(STATE s){
     state = s;
     UnloadTexture(npcTexture);
     switch (s) {
@@ -150,7 +182,7 @@ private:
 
 class Game {
   vector<NPC> npcs;
-
+  
 public:
   void Create() {
     // Adding values in npc obj;
