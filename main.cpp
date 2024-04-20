@@ -13,10 +13,33 @@ enum STATE{
     hurt
 };
 class NPC_Walk{
+    Vector2 position;
     public:
-    void Random_walk()
+    NPC_Walk(){}
+    void Random_walk(Vector2& npcPos)
     {
-       
+        position=npcPos;
+       int direction=GetRandomValue(0,3);
+
+       switch(direction){
+        case 0:
+          position.y-=1;//Upward
+          break;
+        case 1:
+          position.y+=1;//Downward
+          break;
+        case 2:
+          position.x-=1;//Leftward
+          break;
+        case 3:
+          position.x+=1;
+          break;
+        default:
+          break;        
+       }
+    }
+    Vector2 getPosition(){
+        return position;
     }
 };
 class NPC{
@@ -61,19 +84,21 @@ public:
      {
      case attack:
         npcTexture = LoadTexture((texturePath + "/" + name + "_attack.png").c_str());
-        Animate();
+        Animate(s);
         break;
      case walk:
         npcTexture = LoadTexture((texturePath + "/" + name + "_walk.png").c_str());
-        Animate();
+        npc_walk.Random_walk(npcPosition); // Update position
+        npcPosition = npc_walk.getPosition(); 
+        Animate(s);
         break;
      case idle:
         npcTexture = LoadTexture((texturePath + "/" + name + ".png").c_str());
-        Animate();
+        Animate(s);
         break;
      case hurt:
         npcTexture = LoadTexture((texturePath + "/" + name + "_hurt.png").c_str());  
-        Animate();    
+        Animate(s);    
         break;
      default:
         break;
@@ -94,24 +119,25 @@ public:
       DrawTextureRec(npcTexture, npcRectangle, npcPosition, WHITE);
     }
   }
-void Animate()
+void Animate(STATE s)
 {
-   
     static float timer = 0.0f; 
     static int frame = 0;      
     float frameWidth = 0;
+    int count=0;
+    int numTextures=0;
     if (npcTexture.width > 0 && npcTexture.height > 0)
     {
-        int numTextures = npcTexture.width / npcTexture.height;
+        numTextures = npcTexture.width / npcTexture.height;
         if (numTextures > 0)
         {
             frameWidth = static_cast<float>(npcTexture.width / numTextures);
         }
     }
     int maxFrames = static_cast<int>(npcTexture.width / frameWidth);
-
-    timer += GetFrameTime();
-    if (timer >= 0.2f)
+   if(s==walk){
+        timer += GetFrameTime();
+    if (timer >= 0.3f)
     {
         timer = 0.0f;
         frame += 1;
@@ -124,6 +150,24 @@ void Animate()
         RAYWHITE
     );
 
+   }
+   else{
+     timer += GetFrameTime();
+    if (timer >= 0.3f  && frame<=numTextures-2)
+    {
+        timer = 0.0f;
+        frame += 1;
+        count++;
+    }
+    DrawTextureRec(
+        npcTexture,
+        Rectangle{frameWidth * frame, 0, frameWidth, static_cast<float>(npcTexture.height)},
+        Vector2{20, 20},
+        RAYWHITE
+    );
+
+   }
+   
 }
 
 
@@ -298,7 +342,7 @@ class Game{
            npcs[i].setState(state);
          }
     }
-    void Draw()
+    void draw()
     {
         for(int i=0;i<npcs.size();i++)
         {
@@ -320,7 +364,7 @@ int main()
     SetTargetFPS(60);
     Game g;
     //g.Create();
-    //g.Draw();
+    //g.draw();
     STATE state=idle;
     NPC n("assets/Villagers/3_Man", "Man", {0, 0, 48, 48}, {40, 40}, 2.5,state,-1,17,"Man");
     while (!WindowShouldClose())
@@ -328,7 +372,7 @@ int main()
         BeginDrawing();
         ClearBackground(BLACK);
        // g.Update();
-       STATE state=attack;
+       STATE state=walk;
        n.setState(state);
         EndDrawing();
     }
