@@ -214,6 +214,7 @@ int main() {
   // g.Create();
   // g.Draw();
   // Villager, Name,
+
   NPC n("Woodcutter", {40, 40}, 2.5, STATE::idle, -1, 17, "MainCharacters");
   // List of states
   int stateC = 0;
