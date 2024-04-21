@@ -1,6 +1,7 @@
 #include "headers/ds.h"
 #include <bits/stdc++.h>
-// #include "Phone_Window.c"
+#include "headers/UI.h"
+
 #include <cmath>
 #include <iostream>
 #include <raylib.h>
@@ -10,7 +11,6 @@ using namespace std;
 
 const int height = 600;
 const int width = 800;
-
 
 class NPC {
   string texturePath, name;
@@ -114,7 +114,7 @@ public:
       c.center.y += npc->GetRect().height / 2;
       // DrawCircleLinesV(c.center, c.radius, RED);
       vector<Point<NPC>> collided = Q->query(c);
-      cout << npc->GetName() << " " << collided.size() << endl;
+      // cout << npc->GetName() << " " << collided.size() << endl;
       for (Point other : collided) {
         if (other.data != npc) {
           flag = true;
@@ -176,9 +176,9 @@ int main(int argc, char *argv[]) {
   // QuadTree q(bounds, 4);
   int stop = 0;
   vector<Vector2> points;
-  
+  UI ui;
   while (!WindowShouldClose()) {
-
+    ui.HandleCapture();
     BeginDrawing();
     ClearBackground(RAYWHITE);
        npcList.Draw();
@@ -187,6 +187,7 @@ int main(int argc, char *argv[]) {
     if (IsKeyPressed(KEY_SPACE)) {
       npcList.run = !npcList.run;
     }
+    ui.Draw();
     EndDrawing();
   }
 

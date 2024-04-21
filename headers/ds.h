@@ -36,7 +36,7 @@ public:
     }
     // cout << "Points size: " << points.size() << endl;
     if (points.size() < size) {
-      cout << point.v.x << " " << point.v.y << endl;
+      // cout << point.v.x << " " << point.v.y << endl;
       points.push_back(point);
       return true;
     }
@@ -98,7 +98,7 @@ public:
     vector<Point<T>> found;
     for (Point point : points) {
       if (CheckCollisionPointCircle(point.v, area.center, area.radius*2)) {
-        cout << "Query Data" << point.v.x << " " << point.v.y << endl;
+        // cout << "Query Data" << point.v.x << " " << point.v.y << endl;
         found.push_back(point);
       }
     }
