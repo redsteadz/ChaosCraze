@@ -1,3 +1,0 @@
-/home/red/Documents/ProjectsDit/ChaosCraze/build/CMakeFiles/ChaosCraze.dir
-/home/red/Documents/ProjectsDit/ChaosCraze/build/CMakeFiles/edit_cache.dir
-/home/red/Documents/ProjectsDit/ChaosCraze/build/CMakeFiles/rebuild_cache.dir

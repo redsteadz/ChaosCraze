@@ -1,15 +1,5 @@
 #include "headers/ds.h"
 #include <bits/stdc++.h>
-// #define RAYGUI_IMPLEMENTATION
-// #define GUI_CAMERABUTTON_IMPLEMENTATION
-// #define GUI_PHONEWINDOW_IMPLEMENTATION
-// #define GUI_CAMERATOGGLE_IMPLEMENTATION
-// #include "headers/raygui.h"
-//
-// #include "headers/gui_CameraButton.h"
-// #include "headers/gui_phoneWindow.h"
-// #include "headers/gui_cameraToggle.h"
-
 #include "headers/UI.h"
 
 #include <cmath>
