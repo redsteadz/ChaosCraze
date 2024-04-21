@@ -79,8 +79,8 @@ class NPC : public NPC_Physics, NPC_Characteristics {
   int currentFrame = 0;
 
 public:
-  NPC(string _name, Vector2 pos, float spd, STATE state,
-      int sentiment, int age, string occupation)
+  NPC(string _name, Vector2 pos, float spd, STATE state, int sentiment, int age,
+      string occupation)
       : NPC_Characteristics(state, sentiment, age, occupation, _name) {
     npcSpeed = spd;
     texturePath = "../assets/" + occupation + "/" + _name + "/" + _name;
@@ -93,14 +93,15 @@ public:
     state = s;
     UnloadTexture(npcTexture);
     switch (s) {
-    case attack:
-      npcTexture = LoadTexture((texturePath + "_attack.png").c_str());
-      break;
     case walk:
       npcTexture = LoadTexture((texturePath + "_walk.png").c_str());
       break;
     case idle:
       npcTexture = LoadTexture((texturePath + "_idle.png").c_str());
+      break;
+    // One time 
+    case attack:
+      npcTexture = LoadTexture((texturePath + "_attack.png").c_str());
       break;
     case hurt:
       npcTexture = LoadTexture((texturePath + "_hurt.png").c_str());
@@ -212,9 +213,8 @@ int main() {
   Game g;
   // g.Create();
   // g.Draw();
-  // Villager, Name, 
-  NPC n("Woodcutter", {40, 40}, 2.5, STATE::idle, -1, 17,
-        "MainCharacters");
+  // Villager, Name,
+  NPC n("Woodcutter", {40, 40}, 2.5, STATE::idle, -1, 17, "MainCharacters");
   // List of states
   int stateC = 0;
   STATE state_list[] = {idle, walk, attack, hurt, death};
