@@ -6,7 +6,7 @@
 using namespace std;
 const int width = 800;
 const int height = 600;
-enum STATE { attack, walk, idle, hurt };
+enum STATE { attack, walk, idle, hurt, death };
 
 class NPC_Characteristics {
   STATE state;
@@ -16,45 +16,25 @@ class NPC_Characteristics {
   string name;
 
 public:
-NPC_Characteristics(STATE state,int sentiment,int age,string occupation,string name){
-  this->state;
-  this->sentiment;
-  this->age=age;
-  this->occupation=occupation;
-  this->name=name;
-}
+  NPC_Characteristics(STATE state, int sentiment, int age, string occupation,
+                      string name) {
+    this->state = idle;
+    this->sentiment = 0;
+    this->age = age;
+    this->occupation = occupation;
+    this->name = name;
+  }
   friend class NPC;
-  virtual void setState(STATE s){
-    this->state=s;
-  }
-  int getSentiment(){
-    return sentiment;
-  }
-  int getAge(){
-    return age;
-  }
-  string getOccupation(){
-    return occupation;
-  }
-  string getName(){
-       return name;
-  }
-  STATE getState(){
-    return state;
-  }
-  void setName(string name){
-    this->name=name;
-  }
-  void setAge(int age){
-    this->age=age;
-  }
-  void setOccupation(string occupation){
-     this->occupation=occupation;
-  }
-  void setSentiment(int sentiment){
-    this->sentiment=sentiment;
-  }
-  
+  virtual void setState(STATE s) { this->state = s; }
+  int getSentiment() { return sentiment; }
+  int getAge() { return age; }
+  string getOccupation() { return occupation; }
+  string getName() { return name; }
+  STATE getState() { return state; }
+  void setName(string name) { this->name = name; }
+  void setAge(int age) { this->age = age; }
+  void setOccupation(string occupation) { this->occupation = occupation; }
+  void setSentiment(int sentiment) { this->sentiment = sentiment; }
 };
 
 class NPC_Physics {
@@ -99,16 +79,17 @@ class NPC : public NPC_Physics, NPC_Characteristics {
   int currentFrame = 0;
 
 public:
-  NPC(string folderPath, string _name, Vector2 pos, float spd, STATE state,
-      int sentiment, int age, string occupation):NPC_Characteristics(state,sentiment,age,occupation,_name){
+  NPC(string _name, Vector2 pos, float spd, STATE state,
+      int sentiment, int age, string occupation)
+      : NPC_Characteristics(state, sentiment, age, occupation, _name) {
     npcSpeed = spd;
-    texturePath = folderPath + "/" + _name;
+    texturePath = "../assets/" + occupation + "/" + _name + "/" + _name;
     setState(state);
-    npcPosition=pos;
-    npcRectangle={0, 0, (float)npcTexture.height, (float)npcTexture.height};
+    npcPosition = pos;
+    npcRectangle = {0, 0, (float)npcTexture.height, (float)npcTexture.height};
   }
 
-  void setState(STATE s){
+  void setState(STATE s) {
     state = s;
     UnloadTexture(npcTexture);
     switch (s) {
@@ -123,6 +104,10 @@ public:
       break;
     case hurt:
       npcTexture = LoadTexture((texturePath + "_hurt.png").c_str());
+      break;
+    case death:
+      cout << " I CALL ONTO THE DEATH REAPER " << endl;
+      npcTexture = LoadTexture((texturePath + "_death.png").c_str());
       break;
     default:
       break;
@@ -147,24 +132,33 @@ public:
     Draw();
   }
   void Animate() {
-
     static float timer = 0.0f;
     static int frame = 0;
     float frameWidth = 0;
+    int count = 0;
+    int numTextures = 0;
     if (npcTexture.width > 0 && npcTexture.height > 0) {
-      int numTextures = npcTexture.width / npcTexture.height;
+      numTextures = npcTexture.width / npcTexture.height;
       if (numTextures > 0) {
         frameWidth = static_cast<float>(npcTexture.width / numTextures);
       }
     }
     int maxFrames = static_cast<int>(npcTexture.width / frameWidth);
+    if (state != hurt) {
+      timer += GetFrameTime();
+      if (timer >= 0.3f) {
+        timer = 0.0f;
+        frame += 1;
+      }
+      frame = frame % maxFrames;
 
-    timer += GetFrameTime();
-    if (timer >= 0.2f) {
-      timer = 0.0f;
-      frame += 1;
+    } else {
+      timer += GetFrameTime();
+      if (timer >= 0.3f && frame <= numTextures - 2) {
+        timer = 0.0f;
+        frame += 1;
+      }
     }
-    frame = frame % maxFrames;
     npcRectangle = {frame * frameWidth, 0, frameWidth,
                     (float)npcTexture.height};
   }
@@ -174,7 +168,7 @@ private:
     Rectangle npcFlipped = npcRectangle;
     npcFlipped.x =
         npcRectangle.x + npcRectangle.width; // Set x-coordinate to right edge
-    npcFlipped.x -= 24;
+    npcFlipped.x -= 15;
     npcFlipped.width = -npcRectangle.width; // Invert width to flip horizontally
     return npcFlipped;
   }
@@ -182,7 +176,7 @@ private:
 
 class Game {
   vector<NPC> npcs;
-  
+
 public:
   void Create() {
     // Adding values in npc obj;
@@ -218,17 +212,18 @@ int main() {
   Game g;
   // g.Create();
   // g.Draw();
-  NPC n("../assets/Villagers/3_Man", "Man", {40, 40}, 2.5, STATE::idle, -1, 17,
-        "Man");
+  // Villager, Name, 
+  NPC n("Woodcutter", {40, 40}, 2.5, STATE::idle, -1, 17,
+        "MainCharacters");
   // List of states
   int stateC = 0;
-  STATE state_list[] = {idle, walk, attack, hurt};
+  STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(BLACK);
     // g.Update();
     if (IsKeyPressed(KEY_SPACE)) {
-      n.setState(state_list[(++stateC) % 4]);
+      n.setState(state_list[(++stateC) % 5]);
     }
     n.Update();
     EndDrawing();
