@@ -70,6 +70,10 @@ public:
 
 class NPC : public NPC_Physics, NPC_Characteristics {
 
+  float timer = 0.0f;
+  int frame = 0;
+  float frameWidth = 0;
+
   bool isMoving = false;
 
   string texturePath;
@@ -99,7 +103,7 @@ public:
     case idle:
       npcTexture = LoadTexture((texturePath + "_idle.png").c_str());
       break;
-    // One time 
+    // One time
     case attack:
       npcTexture = LoadTexture((texturePath + "_attack.png").c_str());
       break;
@@ -118,6 +122,7 @@ public:
     else
       isMoving = false;
     npcRectangle = {0, 0, (float)npcTexture.height, (float)npcTexture.height};
+    frame = 0;
   }
   void Draw() {
     if (flip) {
@@ -133,9 +138,6 @@ public:
     Draw();
   }
   void Animate() {
-    static float timer = 0.0f;
-    static int frame = 0;
-    float frameWidth = 0;
     int count = 0;
     int numTextures = 0;
     if (npcTexture.width > 0 && npcTexture.height > 0) {
@@ -145,23 +147,21 @@ public:
       }
     }
     int maxFrames = static_cast<int>(npcTexture.width / frameWidth);
-    if (state != hurt) {
-      timer += GetFrameTime();
-      if (timer >= 0.3f) {
-        timer = 0.0f;
-        frame += 1;
-      }
-      frame = frame % maxFrames;
-
-    } else {
-      timer += GetFrameTime();
-      if (timer >= 0.3f && frame <= numTextures - 2) {
-        timer = 0.0f;
-        frame += 1;
+    timer += GetFrameTime();
+    if (timer >= 0.3f) {
+      timer = 0.0f;
+      frame += 1;
+      if (state == walk || state == idle)
+        frame = frame % maxFrames;
+      else {
+        if (frame >= maxFrames)
+          frame = maxFrames - 1;
       }
     }
-    npcRectangle = {frame * frameWidth, 0, frameWidth,
-                    (float)npcTexture.height};
+
+    cout << frame << endl;
+    npcRectangle = {frameWidth * frame, 0, frameWidth,
+                    static_cast<float>(npcTexture.height)};
   }
 
 private:
@@ -169,7 +169,7 @@ private:
     Rectangle npcFlipped = npcRectangle;
     npcFlipped.x =
         npcRectangle.x + npcRectangle.width; // Set x-coordinate to right edge
-    npcFlipped.x -= 15;
+    npcFlipped.x -= 14;
     npcFlipped.width = -npcRectangle.width; // Invert width to flip horizontally
     return npcFlipped;
   }
@@ -217,7 +217,7 @@ int main() {
 
   NPC n("Woodcutter", {40, 40}, 2.5, STATE::idle, -1, 17, "MainCharacters");
   // List of states
-  int stateC = 0;
+  int stateC = 4;
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     BeginDrawing();
