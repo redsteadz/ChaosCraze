@@ -220,7 +220,6 @@ int main() {
   int stateC = 4;
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
-    ui.HandleCapture();
     BeginDrawing();
     ClearBackground(BLACK);
     // g.Update();
