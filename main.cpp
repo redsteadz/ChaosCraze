@@ -1,7 +1,7 @@
-#include "math.h"
-#include "headers/ds.h"
-#include <bits/stdc++.h>
 #include "headers/UI.h"
+#include "headers/ds.h"
+#include "math.h"
+#include <bits/stdc++.h>
 #include <iostream>
 #include <raylib.h>
 #include <string>
@@ -27,8 +27,6 @@ public:
     this->occupation = occupation;
     this->name = name;
   }
-  friend class NPC;
-  virtual void setState(STATE s) = 0;
   int getSentiment() { return sentiment; }
   int getAge() { return age; }
   string getOccupation() { return occupation; }
@@ -38,6 +36,9 @@ public:
   void setAge(int age) { this->age = age; }
   void setOccupation(string occupation) { this->occupation = occupation; }
   void setSentiment(int sentiment) { this->sentiment = sentiment; }
+
+  friend class NPC;
+  virtual void setState(STATE s){};
 };
 
 class NPC_Physics {
@@ -71,7 +72,7 @@ public:
   friend class NPC;
 };
 
-class NPC : public NPC_Physics, NPC_Characteristics {
+class NPC : public NPC_Physics, public NPC_Characteristics {
 
   float timer = 0.0f;
   int frame = 0;
@@ -168,6 +169,7 @@ public:
   }
   Rectangle GetRect() { return npcRectangle; }
   Vector2 GetPos() { return npcPosition; }
+
 private:
   Rectangle flippedTexture() {
     Rectangle npcFlipped = npcRectangle;
@@ -211,6 +213,16 @@ public:
     delete Q;
   }
 
+  vector<Point<NPC>> QueryRec(Rectangle r) { return Q->query(r); }
+
+  void ChangeSentimentVal(string target, int val) {
+    for (NPC *npc : npcList) {
+      if (npc->getName() == target || npc->getOccupation() == target) {
+        npc->setSentiment(val);
+      }
+    }
+  }
+
   void Draw() {
     Q = new QuadTree<NPC>(Rectangle{0, 0, width, height}, 4);
     for (NPC *npc : npcList) {
@@ -233,12 +245,9 @@ public:
 int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
-  // g.Create();
-  // g.Draw();
-  // Villager, Name,
 
   NPC n("Woodcutter", {40, 40}, 2.5, STATE::idle, -1, 17, "MainCharacters");
-  // List of states
+
   int stateC = 4;
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {

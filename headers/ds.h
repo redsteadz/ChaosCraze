@@ -117,6 +117,38 @@ public:
     }
     return found;
   }
+
+    vector<Point<T>> query(Rectangle area) {
+    // cout << "Querying for: " << area.center.x << ", " << area.center.y << endl;
+    // cout << "Bounds: " << bounds.x << ", " << bounds.y << ", " << bounds.width
+    //      << ", " << bounds.height << endl;
+    if (!CheckCollisionRecs(area , bounds)) {
+      // cout << "No Collision" << endl;
+      return {};
+    }
+    vector<Point<T>> found;
+    for (Point point : points) {
+      if (CheckCollisionPointRec(point.v, area)) {
+        // cout << "Query Data" << point.v.x << " " << point.v.y << endl;
+        found.push_back(point);
+      }
+    }
+
+    if (divided) {
+      vector<Point<T>> nw_found = nw->query(area);
+      vector<Point<T>> ne_found = ne->query(area);
+      vector<Point<T>> sw_found = sw->query(area);
+      vector<Point<T>> se_found = se->query(area);
+
+      found.insert(found.end(), nw_found.begin(), nw_found.end());
+      found.insert(found.end(), ne_found.begin(), ne_found.end());
+      found.insert(found.end(), sw_found.begin(), sw_found.end());
+      found.insert(found.end(), se_found.begin(), se_found.end());
+      
+    }
+    return found;
+  }
+
   // ~QuadTree(){
   //   delete nw;
   //   delete ne;
