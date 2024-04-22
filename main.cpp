@@ -28,7 +28,7 @@ public:
     this->name = name;
   }
   friend class NPC;
-  virtual void setState(STATE s) { this->state = s; }
+  virtual void setState(STATE s) = 0;
   int getSentiment() { return sentiment; }
   int getAge() { return age; }
   string getOccupation() { return occupation; }
