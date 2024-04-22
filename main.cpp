@@ -1,4 +1,7 @@
 #include "math.h"
+#include "headers/ds.h"
+#include <bits/stdc++.h>
+#include "headers/UI.h"
 #include <iostream>
 #include <raylib.h>
 #include <string>
@@ -163,7 +166,8 @@ public:
     npcRectangle = {frameWidth * frame, 0, frameWidth,
                     static_cast<float>(npcTexture.height)};
   }
-
+  Rectangle GetRect() { return npcRectangle; }
+  Vector2 GetPos() { return npcPosition; }
 private:
   Rectangle flippedTexture() {
     Rectangle npcFlipped = npcRectangle;
@@ -175,42 +179,60 @@ private:
   }
 };
 
-class Game {
-  vector<NPC> npcs;
+class NPC_Interactions {
+  vector<NPC *> npcList;
+  QuadTree<NPC> *Q;
 
 public:
-  void Create() {
-    // Adding values in npc obj;
+  bool run = true;
+  void AddNPC(NPC *npc) { npcList.push_back(npc); }
 
-    STATE state = idle;
-    // npcs.push_back(NPC("assets/Villagers/3_Man", "Man", {0, 0, 48, 48}, {40,
-    // 40}, 2.5,state,-1,17,"Man"));
+  void CheckCollisions() {
+    for (NPC *npc : npcList) {
+      bool flag = false;
+      Circle c = {npc->GetPos(), 60};
+      c.center.x += npc->GetRect().width / 2 - 10;
+      c.center.y += npc->GetRect().height / 2;
+      // DrawCircleLinesV(c.center, c.radius, RED);
+      vector<Point<NPC>> collided = Q->query(c);
+      // cout << npc->GetName() << " " << collided.size() << endl;
+      for (Point other : collided) {
+        if (other.data != npc) {
+          flag = true;
+          // npc->setColliding(true);
+          // other.data->setColliding(true);
+        }
+      }
 
-    // till n no of npcs
+      if (!flag) {
+        // npc->setColliding(false);
+      }
+    }
+    delete Q;
+  }
+
+  void Draw() {
+    Q = new QuadTree<NPC>(Rectangle{0, 0, width, height}, 4);
+    for (NPC *npc : npcList) {
+      npc->Draw();
+      Point<NPC> p = {npc->GetPos(), npc};
+      Q->insert(p);
+      // cout << npc->GetName() << " " << p.v.x << " " << p.v.y << endl;
+    }
+    // Q->Draw();
   }
   void Update() {
-    for (int i = 0; i < npcs.size(); i++) {
-      STATE state = attack;
-      npcs[i].setState(state);
-    }
-  }
-  void Draw() {
-    for (int i = 0; i < npcs.size(); i++) {
-      STATE state = attack;
-      npcs[i].Draw();
-      npcs[i].setState(state);
-    }
-  }
-  void ProcessNPCs(vector<NPC> &npcs) {
-    for (int i = 0; i < npcs.size(); i++) {
-      //  npcs[i].Update();
+    if (run) {
+      for (NPC *npc : npcList) {
+        npc->Update();
+      }
     }
   }
 };
+
 int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
-  Game g;
   // g.Create();
   // g.Draw();
   // Villager, Name,
