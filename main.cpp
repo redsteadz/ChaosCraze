@@ -212,7 +212,7 @@ int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
   Game g;
-  Map map = LoadTiled("../assets/TileMap/Map.json");
+  Map map = LoadTiled("../assets/TileMap/Map2.json");
 
   // g.Create();
   // g.Draw();
@@ -225,7 +225,7 @@ int main() {
   Camera2D cam = {Vector2{0, 0}, Vector2{0, 0}, 0, 3};
   while (!WindowShouldClose()) {
     BeginDrawing();
-    BeginMode2D(cam);
+    // BeginMode2D(cam);
     ClearBackground(BLACK);
     // g.Update();
     if (IsKeyPressed(KEY_SPACE)) {
