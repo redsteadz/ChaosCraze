@@ -7,7 +7,7 @@
 #include <vector>
 using namespace std;
 const int width = 800;
-const int height = 600;
+const int height = 800;
 enum STATE { attack, walk, idle, hurt, death };
 
 class NPC_Characteristics {
@@ -212,7 +212,7 @@ int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
   Game g;
-  Map map = LoadTiled("../assets/TileMap/Map2.json");
+  Map map = LoadTiled("../assets/TileMap/Final.json");
 
   // g.Create();
   // g.Draw();
