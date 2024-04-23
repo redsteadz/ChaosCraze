@@ -17,6 +17,7 @@ class NPC_Characteristics {
   int age;
   string occupation;
   string name;
+  int health;
 
 public:
   NPC_Characteristics(STATE state, int sentiment, int age, string occupation,
@@ -26,6 +27,7 @@ public:
     this->age = age;
     this->occupation = occupation;
     this->name = name;
+    this->health=100;
   }
   friend class NPC;
   virtual void setState(STATE s) { this->state = s; }
@@ -34,6 +36,8 @@ public:
   string getOccupation() { return occupation; }
   string getName() { return name; }
   STATE getState() { return state; }
+  int getHealth(){ return health; }
+  void setHealth(int health){ this->health=health; }
   void setName(string name) { this->name = name; }
   void setAge(int age) { this->age = age; }
   void setOccupation(string occupation) { this->occupation = occupation; }
@@ -227,7 +231,22 @@ public:
   }
   bool run = true;
   void AddNPC(NPC *npc) { npcList.push_back(npc); }
-
+ bool ActionProbablity(NPC *npc1,NPC *npc2){
+  int g=abs(npc1->age - npc2->age);
+  if(npc1->occupation != npc2->occupation){
+    int o=1;
+  }
+  else{
+    o=0;
+  }
+     int y=(-(4*npc1->sentiment)-(4*npc2->sentiment)-(g/3)+o+14)/22;
+     if(y>=0.5){
+        return true;
+     }
+     else{
+      return false;
+     }
+ }
   void CheckCollisions() {
     for (NPC *npc : npcList) {
       bool flag = false;
