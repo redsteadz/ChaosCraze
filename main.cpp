@@ -2,6 +2,7 @@
 #include <iostream>
 #include <raylib.h>
 #include <string>
+#include "headers/ds.h"
 #define RAYLIB_TILESON_IMPLEMENTATION
 #include "raylib-tileson.h"
 #include <vector>
@@ -192,19 +193,9 @@ private:
   }
 };
 
-class NPC : public NPC_Physics, NPC_Characteristics {
-
-  float timer = 0.0f;
-  int frame = 0;
-  float frameWidth = 0;
-
-  bool isMoving = false;
-
-  string texturePath;
-  Texture2D npcTexture;
-  int frameSpeed = 6;
-  int frameCount = 0;
-  int currentFrame = 0;
+class NPC_Interactions {
+  vector<NPC *> npcList;
+  QuadTree<NPC> *Q;
 
 public:
   bool run = true;
@@ -248,25 +239,19 @@ public:
   }
 
   void Draw() {
-    if (flip) {
-      DrawTextureRec(npcTexture, flippedTexture(), npcPosition, WHITE);
-    } else {
-      DrawTextureRec(npcTexture, npcRectangle, npcPosition, WHITE);
+    Q = new QuadTree<NPC>(Rectangle{0, 0, width, height}, 4);
+    for (NPC *npc : npcList) {
+      npc->Draw();
+      Point<NPC> p = {npc->GetPos(), npc};
+      Q->insert(p);
+      // cout << npc->GetName() << " " << p.v.x << " " << p.v.y << endl;
     }
+    // Q->Draw();
   }
   void Update() {
-    Animate();
-    if (isMoving)
-      Random_walk();
-    Draw();
-  }
-  void Animate() {
-    int count = 0;
-    int numTextures = 0;
-    if (npcTexture.width > 0 && npcTexture.height > 0) {
-      numTextures = npcTexture.width / npcTexture.height;
-      if (numTextures > 0) {
-        frameWidth = static_cast<float>(npcTexture.width / numTextures);
+    if (run) {
+      for (NPC *npc : npcList) {
+        npc->Update();
       }
     }
     delete Q;
@@ -291,8 +276,11 @@ int main() {
   Game.AddNPC(&Old_Man);
   Game.AddNPC(&Man);
   Game.AddNPC(&Woman);
-
+  
+  Map map = LoadTiled("../assets/TileMap/Final.json");
+  
   int stateC = 4;
+
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     BeginDrawing();
