@@ -1,7 +1,7 @@
-#include "math.h"
-#include "headers/ds.h"
-#include <bits/stdc++.h>
 #include "headers/UI.h"
+#include "headers/ds.h"
+#include "math.h"
+#include <bits/stdc++.h>
 #include <iostream>
 #include <raylib.h>
 #include <string>
@@ -157,8 +157,11 @@ public:
       if (state == walk || state == idle)
         frame = frame % maxFrames;
       else {
-        if (frame >= maxFrames)
+        if (frame >= maxFrames) {
           frame = maxFrames - 1;
+          if (state == attack || state == hurt)
+            setState(walk);
+        }
       }
     }
 
@@ -168,6 +171,7 @@ public:
   }
   Rectangle GetRect() { return npcRectangle; }
   Vector2 GetPos() { return npcPosition; }
+
 private:
   Rectangle flippedTexture() {
     Rectangle npcFlipped = npcRectangle;
