@@ -213,7 +213,7 @@ public:
       // cout << npc->GetName() << " " << collided.size() << endl;
       for (Point other : collided) {
         if (other.data != npc) {
-          cout << npc->getName() << " COLLIDING " << other.data->getName() << endl;
+          // cout << npc->getName() << " COLLIDING " << other.data->getName() << endl;
           collisions.push_back({npc, other.data});
           // flag = true;
           // break;
@@ -285,6 +285,7 @@ int main() {
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(BLACK);
+    DrawTiled(map, 0, 0, WHITE);
     Game.Draw();
     Game.CheckCollisions();
     Game.Update();
