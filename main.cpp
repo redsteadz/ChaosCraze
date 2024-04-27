@@ -80,6 +80,8 @@ class NPC : public NPC_Physics, public NPC_Characteristics {
 
   bool isMoving = false;
 
+  bool isColliding = false;
+
   string texturePath;
   Texture2D npcTexture;
   int frameSpeed = 6;
@@ -134,6 +136,9 @@ public:
     } else {
       DrawTextureRec(npcTexture, npcRectangle, npcPosition, WHITE);
     }
+    if (isColliding) {
+      DrawRectangleLinesEx(Rectangle{npcPosition.x, npcPosition.y, 32, 32}, 2, GREEN);
+    }
   }
   void Update() {
     Animate();
@@ -163,12 +168,14 @@ public:
       }
     }
 
-    cout << frame << endl;
+    // cout << frame << endl;
     npcRectangle = {frameWidth * frame, 0, frameWidth,
                     static_cast<float>(npcTexture.height)};
   }
   Rectangle GetRect() { return npcRectangle; }
   Vector2 GetPos() { return npcPosition; }
+  void setColliding(bool b) { isColliding = b; }
+  bool getColliding() { return isColliding; }
 
 private:
   Rectangle flippedTexture() {
@@ -189,7 +196,8 @@ public:
   bool run = true;
   void AddNPC(NPC *npc) { npcList.push_back(npc); }
 
-  void CheckCollisions() {
+  vector<pair<NPC *, NPC *>> CheckCollisions() {
+    vector<pair<NPC *, NPC *>> collisions;
     for (NPC *npc : npcList) {
       bool flag = false;
       Circle c = {npc->GetPos(), 60};
@@ -200,17 +208,19 @@ public:
       // cout << npc->GetName() << " " << collided.size() << endl;
       for (Point other : collided) {
         if (other.data != npc) {
-          flag = true;
-          // npc->setColliding(true);
-          // other.data->setColliding(true);
+          cout << npc->getName() << " COLLIDING " << other.data->getName() << endl;
+          collisions.push_back({npc, other.data});
+          // flag = true;
+          // break;
         }
       }
-
-      if (!flag) {
-        // npc->setColliding(false);
-      }
+      // if (flag) {
+      //   npc->setColliding(true);
+      // } else {
+      //   npc->setColliding(false);
+      // }
     }
-    delete Q;
+    return collisions;
   }
 
   vector<Point<NPC>> QueryRec(Rectangle r) { return Q->query(r); }
@@ -239,25 +249,37 @@ public:
         npc->Update();
       }
     }
+    delete Q;
   }
 };
 
 int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
+  //  NPC(string _name, Vector2 pos, float spd, STATE state, int sentiment, int age,
+  //  string occupation)
+  NPC_Interactions Game;
 
-  NPC n("Woodcutter", {40, 40}, 2.5, STATE::idle, -1, 17, "MainCharacters");
+  NPC Boy("Boy", {32, 32}, 3, STATE::walk, 0, 0, "Villagers");
+  NPC Girl("Girl", {300, 300}, 3, STATE::walk, 0, 0, "Villagers");
+  NPC Old_Man("Old_man", {500, 500}, 3, STATE::walk, 0, 0, "Villagers");
+  NPC Man("Man", {400, 400}, 3, STATE::walk, 0, 0, "Villagers");
+  NPC Woman("Woman", {500, 500}, 3, STATE::walk, 0, 0, "Villagers");
+  
+  Game.AddNPC(&Boy);
+  Game.AddNPC(&Girl);
+  Game.AddNPC(&Old_Man);
+  Game.AddNPC(&Man);
+  Game.AddNPC(&Woman);
 
   int stateC = 4;
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(BLACK);
-    // g.Update();
-    if (IsKeyPressed(KEY_SPACE)) {
-      n.setState(state_list[(++stateC) % 5]);
-    }
-    n.Update();
+    Game.Draw();
+    Game.CheckCollisions();
+    Game.Update();
     EndDrawing();
   }
 
