@@ -1,8 +1,8 @@
+#include "headers/ds.h"
 #include "math.h"
 #include <iostream>
 #include <raylib.h>
 #include <string>
-#include "headers/ds.h"
 #define RAYLIB_TILESON_IMPLEMENTATION
 #include "raylib-tileson.h"
 #include <vector>
@@ -10,6 +10,32 @@ using namespace std;
 const int width = 800;
 const int height = 800;
 enum STATE { attack, walk, idle, hurt, death };
+
+int collisionMap[25][25] = {0};
+
+class CollisionMapper {
+
+public:
+  // Load Collision map from binary file
+  static void LoadCollisionMap() {
+    ifstream file("../assets/TileMap/Collision_map.bin", ios::binary);
+    file.read((char *)collisionMap, sizeof(collisionMap));
+    file.close();
+  }
+  static void AddCollision(int x, int y, int val) { collisionMap[y][x] = val; }
+  static void DrawCollisionMap() {
+    for (int i = 0; i < 25; i++)
+      for (int j = 0; j < 25; j++)
+        if (collisionMap[i][j] == 1)
+          DrawRectangle(i * 32, j * 32, 32, 32, BLUE);
+  }
+  // Save collision map to a binary file
+  static void SaveCollisionMap() {
+    ofstream file("../assets/TileMap/Collision_map.bin", ios::binary);
+    file.write((char *)collisionMap, sizeof(collisionMap));
+    file.close();
+  }
+};
 
 class NPC_Characteristics {
   STATE state;
@@ -50,6 +76,7 @@ class NPC_Physics {
 
 public:
   void Random_walk() {
+
     direction +=
         (rand() % 100 - 50) * 0.01f; // Adjust the range and step size as needed
 
@@ -57,16 +84,32 @@ public:
     Vector2 movement = {npcSpeed * cos(direction), npcSpeed * sin(direction)};
 
     // Update NPC position
+
     npcPosition.x += movement.x;
     npcPosition.y += movement.y;
+
+    int x = npcPosition.x / 32;
+    int y = npcPosition.y / 32;
+
+    // cout << collisionMap[x][y] << endl;
+    if (collisionMap[x][y] == 1 || collisionMap[x][y + 1] == 1 || collisionMap[x + 1][y] == 1 || collisionMap[x + 1][y + 1] == 1) {
+      DrawRectangleLinesEx(Rectangle{npcPosition.x, npcPosition.y, 32, 64}, 2,
+                           RED);
+      npcPosition.x -= movement.x;
+      npcPosition.y -= movement.y;
+    }
+
     if (movement.x < 0.0f) {
       flip = 1;
     } else {
       flip = 0;
     }
+
     // Ensure NPC stays within the screen boundaries
     npcPosition.x = fmax(fmin(npcPosition.x, width - npcRectangle.width), 0);
     npcPosition.y = fmax(fmin(npcPosition.y, height - npcRectangle.height), 0);
+
+    // Check if the new position is not hitting any collision
   }
   friend class NPC;
 };
@@ -136,7 +179,8 @@ public:
       DrawTextureRec(npcTexture, npcRectangle, npcPosition, WHITE);
     }
     if (isColliding) {
-      DrawRectangleLinesEx(Rectangle{npcPosition.x, npcPosition.y, 32, 32}, 2, GREEN);
+      DrawRectangleLinesEx(Rectangle{npcPosition.x, npcPosition.y, 32, 32}, 2,
+                           GREEN);
     }
     // Ensure NPC stays within the screen boundaries
     npcPosition.x = fmax(fmin(npcPosition.x, width - npcRectangle.width), 0);
@@ -213,7 +257,8 @@ public:
       // cout << npc->GetName() << " " << collided.size() << endl;
       for (Point other : collided) {
         if (other.data != npc) {
-          // cout << npc->getName() << " COLLIDING " << other.data->getName() << endl;
+          // cout << npc->getName() << " COLLIDING " << other.data->getName() <<
+          // endl;
           collisions.push_back({npc, other.data});
           // flag = true;
           // break;
@@ -261,24 +306,28 @@ public:
 int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
-  //  NPC(string _name, Vector2 pos, float spd, STATE state, int sentiment, int age,
-  //  string occupation)
+  // Seed for random number
+  srand(time(NULL));
+  //  NPC(string _name, Vector2 pos, float spd, STATE state, int sentiment, int
+  //  age, string occupation)
   NPC_Interactions Game;
 
-  NPC Boy("Boy", {32, 32}, 3, STATE::walk, 0, 0, "Villagers");
-  NPC Girl("Girl", {300, 300}, 3, STATE::walk, 0, 0, "Villagers");
-  NPC Old_Man("Old_man", {500, 500}, 3, STATE::walk, 0, 0, "Villagers");
-  NPC Man("Man", {400, 400}, 3, STATE::walk, 0, 0, "Villagers");
-  NPC Woman("Woman", {500, 500}, 3, STATE::walk, 0, 0, "Villagers");
-  
+  CollisionMapper::LoadCollisionMap();
+
+  NPC Boy("Boy", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Girl("Girl", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Old_Man("Old_man", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Man("Man", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Woman("Woman", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+
   Game.AddNPC(&Boy);
   Game.AddNPC(&Girl);
   Game.AddNPC(&Old_Man);
   Game.AddNPC(&Man);
   Game.AddNPC(&Woman);
-  
+
   Map map = LoadTiled("../assets/TileMap/Final.json");
-  
+
   int stateC = 4;
 
   STATE state_list[] = {idle, walk, attack, hurt, death};
@@ -286,6 +335,26 @@ int main() {
     BeginDrawing();
     ClearBackground(BLACK);
     DrawTiled(map, 0, 0, WHITE);
+
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+      // Find the i j according to a grid of 32 x 32
+      int i = GetMouseX() / 32;
+      int j = GetMouseY() / 32;
+      cout << i << " " << j << endl;
+      CollisionMapper::AddCollision(j, i, 1);
+    }
+    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+      int i = GetMouseX() / 32;
+      int j = GetMouseY() / 32;
+      CollisionMapper::AddCollision(j, i, 0);
+    }
+    // Draw the CollisionMap over it as blue
+    // CollisionMapper::DrawCollisionMap();
+    // On Space Save the collision map
+    if (IsKeyDown(KEY_SPACE)) {
+      CollisionMapper::SaveCollisionMap();
+    }
+    // CollisionMapper::DrawCollisionMap();
     Game.Draw();
     Game.CheckCollisions();
     Game.Update();
