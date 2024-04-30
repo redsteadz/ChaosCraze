@@ -35,6 +35,26 @@ public:
     file.write((char *)collisionMap, sizeof(collisionMap));
     file.close();
   }
+  static void Mapper() {
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+      // Find the i j according to a grid of 32 x 32
+      int i = GetMouseX() / 32;
+      int j = GetMouseY() / 32;
+      cout << i << " " << j << endl;
+      CollisionMapper::AddCollision(j, i, 1);
+    }
+    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+      int i = GetMouseX() / 32;
+      int j = GetMouseY() / 32;
+      CollisionMapper::AddCollision(j, i, 0);
+    }
+    // Draw the CollisionMap over it as blue
+    // CollisionMapper::DrawCollisionMap();
+    // On Space Save the collision map
+    if (IsKeyDown(KEY_SPACE)) {
+      CollisionMapper::SaveCollisionMap();
+    }
+  }
 };
 
 class NPC_Characteristics {
@@ -92,7 +112,8 @@ public:
     int y = npcPosition.y / 32;
 
     // cout << collisionMap[x][y] << endl;
-    if (collisionMap[x][y] == 1 || collisionMap[x][y + 1] == 1 || collisionMap[x + 1][y] == 1 || collisionMap[x + 1][y + 1] == 1) {
+    if (collisionMap[x][y] == 1 || collisionMap[x][y + 1] == 1 ||
+        collisionMap[x + 1][y] == 1 || collisionMap[x + 1][y + 1] == 1) {
       DrawRectangleLinesEx(Rectangle{npcPosition.x, npcPosition.y, 32, 64}, 2,
                            RED);
       npcPosition.x -= movement.x;
@@ -336,24 +357,6 @@ int main() {
     ClearBackground(BLACK);
     DrawTiled(map, 0, 0, WHITE);
 
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-      // Find the i j according to a grid of 32 x 32
-      int i = GetMouseX() / 32;
-      int j = GetMouseY() / 32;
-      cout << i << " " << j << endl;
-      CollisionMapper::AddCollision(j, i, 1);
-    }
-    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-      int i = GetMouseX() / 32;
-      int j = GetMouseY() / 32;
-      CollisionMapper::AddCollision(j, i, 0);
-    }
-    // Draw the CollisionMap over it as blue
-    // CollisionMapper::DrawCollisionMap();
-    // On Space Save the collision map
-    if (IsKeyDown(KEY_SPACE)) {
-      CollisionMapper::SaveCollisionMap();
-    }
     // CollisionMapper::DrawCollisionMap();
     Game.Draw();
     Game.CheckCollisions();
