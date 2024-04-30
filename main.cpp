@@ -231,7 +231,7 @@ private:
     Rectangle npcFlipped = npcRectangle;
     npcFlipped.x =
         npcRectangle.x + npcRectangle.width; // Set x-coordinate to right edge
-    npcFlipped.x -= 14;
+    npcFlipped.x -= 20;
     npcFlipped.width = -npcRectangle.width; // Invert width to flip horizontally
     return npcFlipped;
   }
