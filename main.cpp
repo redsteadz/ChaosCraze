@@ -1,4 +1,5 @@
 #include "headers/ds.h"
+#include "headers/collisions.h"
 #include "math.h"
 #include <iostream>
 #include <raylib.h>
@@ -12,50 +13,6 @@ const int height = 800;
 enum STATE { attack, walk, idle, hurt, death };
 
 int collisionMap[25][25] = {0};
-
-class CollisionMapper {
-
-public:
-  // Load Collision map from binary file
-  static void LoadCollisionMap() {
-    ifstream file("../assets/TileMap/Collision_map.bin", ios::binary);
-    file.read((char *)collisionMap, sizeof(collisionMap));
-    file.close();
-  }
-  static void AddCollision(int x, int y, int val) { collisionMap[y][x] = val; }
-  static void DrawCollisionMap() {
-    for (int i = 0; i < 25; i++)
-      for (int j = 0; j < 25; j++)
-        if (collisionMap[i][j] == 1)
-          DrawRectangle(i * 32, j * 32, 32, 32, BLUE);
-  }
-  // Save collision map to a binary file
-  static void SaveCollisionMap() {
-    ofstream file("../assets/TileMap/Collision_map.bin", ios::binary);
-    file.write((char *)collisionMap, sizeof(collisionMap));
-    file.close();
-  }
-  static void Mapper() {
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-      // Find the i j according to a grid of 32 x 32
-      int i = GetMouseX() / 32;
-      int j = GetMouseY() / 32;
-      cout << i << " " << j << endl;
-      CollisionMapper::AddCollision(j, i, 1);
-    }
-    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-      int i = GetMouseX() / 32;
-      int j = GetMouseY() / 32;
-      CollisionMapper::AddCollision(j, i, 0);
-    }
-    // Draw the CollisionMap over it as blue
-    // CollisionMapper::DrawCollisionMap();
-    // On Space Save the collision map
-    if (IsKeyDown(KEY_SPACE)) {
-      CollisionMapper::SaveCollisionMap();
-    }
-  }
-};
 
 class NPC_Characteristics {
   STATE state;
