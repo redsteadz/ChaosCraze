@@ -1,8 +1,11 @@
-
+#include "headers/ds.h"
+#include "headers/collisions.h"
 #include "math.h"
 #include <iostream>
 #include <raylib.h>
 #include <string>
+#define RAYLIB_TILESON_IMPLEMENTATION
+#include "raylib-tileson.h"
 #include <vector>
 using namespace std;
 const int width = 800;
@@ -338,12 +341,13 @@ int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
   // Seed for random number
-  //srand(time(NULL));
+
+  srand(time(NULL));
   //  NPC(string _name, Vector2 pos, float spd, STATE state, int sentiment, int
   //  age, string occupation)
   NPC_Interactions Game;
-   Games G;
- // CollisionMapper::LoadCollisionMap();
+
+  CollisionMapper::LoadCollisionMap();
 
   NPC Boy("Boy", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
   NPC Girl("Girl", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
@@ -356,8 +360,10 @@ int main() {
   Game.AddNPC(&Old_Man);
   Game.AddNPC(&Man);
   Game.AddNPC(&Woman);
-  
-  //Map map = LoadTiled("../assets/TileMap/Final.json");
+
+
+  Map map = LoadTiled("../assets/TileMap/Final.json");
+
 
   int stateC = 4;
 
@@ -365,12 +371,15 @@ int main() {
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(BLACK);
-    //DrawTiled(map, 0, 0, WHITE);
+
+    DrawTiled(map, 0, 0, WHITE);
+
 
     // CollisionMapper::DrawCollisionMap();
     Game.Draw();
     Game.CheckCollisions();
-    G.Random_interactions();
+
+
     Game.Update();
     EndDrawing();
   }
