@@ -294,7 +294,10 @@ public:
     if (UI::getPostedState()){
       // Grab the second Noun 
       // Grab the connect 
-      
+      string target = DropdownNoun2[ActiveDropdownNoun2()];
+      cout << target << endl;
+      NPC_Interactions::ChangeSentimentVal(target, 1);
+      UI::setPostedState(0);
     }
     if (capture == 2) {
       // It has captured some shit, Grab the npcs from rectangle
@@ -353,9 +356,9 @@ int main() {
     // CollisionMapper::DrawCollisionMap();
 
     Game.Draw();
-    Game.Update();
     EndDrawing();
     Game.HandleCapture();
+    Game.Update();
   }
   UnloadMap(map);
   CloseWindow();

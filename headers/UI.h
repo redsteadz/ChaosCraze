@@ -21,9 +21,11 @@ class UI {
   GuiCameraToggleState cameraToggleState;
   Image screenShot;
   Texture2D screenShotTexture;
+
+public:
   vector<string> DropdownNoun1;
   vector<string> DropdownNoun2;
-public:
+  
   Rectangle rect;
   int capture = 0;
   UI() {
@@ -33,7 +35,8 @@ public:
     ResetCapture();
   }
   int getPostedState() { return phoneWindowState.posted; };
-  int setPostedState(int i) { phoneWindowState.posted = i; };
+  void setPostedState(int i) { phoneWindowState.posted = i; };
+  int ActiveDropdownNoun2(){return phoneWindowState.DropdownNoun2Active;};
   void Draw() {
     if (capture == 1) {
       DrawRectangleLinesEx(rect, 3, BLACK);
