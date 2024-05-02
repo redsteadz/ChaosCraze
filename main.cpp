@@ -20,6 +20,7 @@ class NPC_Characteristics {
   int age;
   string occupation;
   string name;
+  int health;
 
 public:
   NPC_Characteristics(STATE state, int sentiment, int age, string occupation,
@@ -28,6 +29,7 @@ public:
     this->sentiment = 0;
     this->age = age;
     this->occupation = occupation;
+    this->health=100;
     this->name = name;
   }
   friend class NPC;
@@ -41,6 +43,13 @@ public:
   void setAge(int age) { this->age = age; }
   void setOccupation(string occupation) { this->occupation = occupation; }
   void setSentiment(int sentiment) { this->sentiment = sentiment; }
+  void setHealth(int health) { 
+    if(health >= this->health)
+      this->health -=health;
+    else
+      this->health=0;
+     }
+  int getHealth(){ return this->health;}
 };
 
 class NPC_Physics {
@@ -280,11 +289,59 @@ public:
     delete Q;
   }
 };
-
+class Games{
+  static int deathCount;
+    NPC_Interactions npc;
+    public:
+    void Random_interactions(){
+      vector<pair<NPC*,NPC*>> pairList;
+      pairList.push_back(npc.CheckCollisions());
+      for(pair : pairList){
+      if(npc.ActionProbability(pair.first,pair.second) && pair.first->getState() != death && pair.first->getState() != attack && pair.second->getState() != death && pair.second->getState() != attack)
+      {
+        if(pair.first->getSentiment() >=-1 && pair.first->getSentiment() <=1 && pair.second->getSentiment() >=-1 && pair.second->getSentiment() <=1){
+         if(pair.first->getSentiment() > pair.second->getSentiment() || pair.first->getSentiment() == pair.second->getSentiment() ){
+            pair.second->setState(attack);
+            if(pair.first->getSentiment() >0)
+                pair.first->setHealth(15);
+            else if(pair.first->getSentiment() <0)
+                pair.first->setHealth(25);
+            else
+                pair.first->setHealth(10);       
+        }
+        else if(pair.first->getSentiment() < pair.second->getSentiment()){
+           pair.first->setState(attack);
+            if(pair.second->getSentiment() >0)
+              
+                pair.second->setHealth(15);
+              
+            else if(pair.second->getSentiment() <0)
+              
+                pair.second->setHealth(25);
+              
+            else
+              
+                pair.second->setHealth(10);
+                       
+        }
+    }
+    if(pair.first->getHealth() ==0){
+      pair.first->setState(death);
+      deathCount++;
+    }
+    else if(pair.second->getHealth() ==0){
+      pair.second->setState(death);
+      deathCount++;
+    }
+}
+}
+}
+};
 int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
   // Seed for random number
+
   srand(time(NULL));
   //  NPC(string _name, Vector2 pos, float spd, STATE state, int sentiment, int
   //  age, string occupation)
@@ -304,7 +361,9 @@ int main() {
   Game.AddNPC(&Man);
   Game.AddNPC(&Woman);
 
+
   Map map = LoadTiled("../assets/TileMap/Final.json");
+
 
   int stateC = 4;
 
@@ -312,11 +371,15 @@ int main() {
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(BLACK);
+
     DrawTiled(map, 0, 0, WHITE);
+
 
     // CollisionMapper::DrawCollisionMap();
     Game.Draw();
     Game.CheckCollisions();
+
+
     Game.Update();
     EndDrawing();
   }
