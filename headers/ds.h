@@ -96,13 +96,12 @@ public:
       return {};
     }
     vector<Point<T>> found;
-    for (Point point : points) {
+    for (Point<T> point : points) {
       if (CheckCollisionPointCircle(point.v, area.center, area.radius*2)) {
         // cout << "Query Data" << point.v.x << " " << point.v.y << endl;
         found.push_back(point);
-      }
-    }
-
+      };
+    };
     if (divided) {
       vector<Point<T>> nw_found = nw->query(area);
       vector<Point<T>> ne_found = ne->query(area);

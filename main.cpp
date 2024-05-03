@@ -196,16 +196,12 @@ public:
       // DrawCircleLinesV(c.center, c.radius, RED);
       vector<Point<NPC>> collided = Q->query(c);
       // cout << npc->GetName() << " " << collided.size() << endl;
-      for (Point other : collided) {
+      for (Point<NPC> other : collided) {
         if (other.data != npc) {
           flag = true;
           // npc->setColliding(true);
           // other.data->setColliding(true);
         }
-      }
-
-      if (!flag) {
-        // npc->setColliding(false);
       }
     }
     delete Q;
