@@ -2,8 +2,6 @@
 #include <iostream>
 #include <raylib.h>
 #include <string>
-#define RAYLIB_TILESON_IMPLEMENTATION
-#include "raylib-tileson.h"
 #include <vector>
 using namespace std;
 const int width = 800;
@@ -208,11 +206,12 @@ public:
     }
   }
 };
+
 int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
   Game g;
-  Map map = LoadTiled("../assets/TileMap/Map2.json");
+  // Map map = LoadTiled("../assets/TileMap/Map2.json");
 
   // g.Create();
   // g.Draw();
@@ -231,11 +230,11 @@ int main() {
     if (IsKeyPressed(KEY_SPACE)) {
       n.setState(state_list[(++stateC) % 5]);
     }
-    DrawTiled(map, 0, 0, WHITE);
+    // DrawTiled(map, 0, 0, WHITE);
     n.Update();
     EndDrawing();
   }
-  UnloadMap(map);
+  // UnloadMap(map);
   CloseWindow();
   return 0;
 }
