@@ -5,7 +5,7 @@
 #include <vector>
 using namespace std;
 const int width = 800;
-const int height = 600;
+const int height = 800;
 enum STATE { attack, walk, idle, hurt, death };
 
 class NPC_Characteristics {
