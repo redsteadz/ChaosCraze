@@ -2,3 +2,4 @@ build/**
 build/CMakeFiles/ChaosCraze.dir
 CMakeLists.txt
 CMakeLists.txt
+build/CMakeFiles
