@@ -1,4 +1,5 @@
 #include "headers/collisions.h"
+#include "headers/UI.h"
 #include "headers/ds.h"
 #include "math.h"
 #include <iostream>
@@ -306,11 +307,15 @@ public:
     delete Q;
   }
 };
-class Game: public NPC_Interactions {
-  static int deathCount;
 
+class Game : public NPC_Interactions, public UI {
+  static int deathCount;
 public:
-  void Random_interactions() {
+  void Draw() {
+    NPC_Interactions::Draw();
+    UI::Draw();
+  }
+    void Random_interactions() {
     vector<pair<NPC *, NPC *>> pairList = CheckCollisions();
     for (auto o : pairList) {
       if (ActionProbablity(o.first, o.second) &&
@@ -352,7 +357,36 @@ public:
       }
     }
   }
+  void Update() {
+    if (UI::getPostedState()){
+      // Grab the second Noun 
+      // Grab the connect 
+      string target = DropdownNoun2[ActiveDropdownNoun2()];
+      cout << target << endl;
+      NPC_Interactions::ChangeSentimentVal(target, 1);
+      UI::setPostedState(0);
+    }
+    if (capture == 2) {
+      // It has captured some shit, Grab the npcs from rectangle
+      Rectangle captured = rect;
+      cout << captured.x << " " << captured.y << " " << captured.width << " "
+           << captured.height << endl;
+      vector<Point<NPC>> collided = QueryRec(captured);
+      vector<string> names;
+      for (Point<NPC> npc : collided) {
+        // Update the options in the caption
+        names.push_back(npc.data->getName());
+        cout << npc.data->getName() << " ";
+      }
+      if (!names.empty())
+        setCaption(names);
+
+      UI::capture = 0;
+    }
+    NPC_Interactions::Update();
+  }
 };
+
 int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
