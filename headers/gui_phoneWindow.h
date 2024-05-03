@@ -26,7 +26,7 @@
 #undef RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
-#include <string.h> // Required for: strcpy()
+#include <string.h>
 
 #ifndef GUI_PHONEWINDOW_H
 #define GUI_PHONEWINDOW_H
@@ -42,6 +42,12 @@ typedef struct {
   bool DropdownNoun2Edit;
   int DropdownNoun2Active;
 
+  char* DropdownNoun1;
+  char* DropdownConnector;
+  char* DropdownNoun2;
+
+
+  int posted;
   // Custom state variables (depend on development software)
   Texture2D Image001;
   // NOTE: This variables should be added manually if required
@@ -113,6 +119,11 @@ GuiPhoneWindowState InitGuiPhoneWindow(void) {
   state.DropdownNoun2Edit = false;
   state.DropdownNoun2Active = 0;
 
+  state.DropdownNoun1 = "-;-;-";
+  state.DropdownConnector = "attack;slap;galnotch";
+  state.DropdownNoun2 = "-;-;-";
+
+  state.posted = 0;
   // state.Image001 = LoadTexture("../assets/DefaultCapture.png");
   // Custom variables initialization
 
@@ -128,6 +139,7 @@ static void Button005(int A, int B, int C, GuiPhoneWindowState &state) {
   const char *text[] = {"Huffy", "Snuffy", "Abeera"};
   const char *text2[] = {"And", "Or", "Slaps"};
   std::cout << text[A] << " " << text2[B] << " " << text[C] << std::endl;
+  state.posted = 1;
   if (IsTextureReady(state.Image001))
     UnloadTexture(state.Image001);
   Image screenShot = LoadImage("../assets/DefaultCapture.png");
@@ -156,17 +168,17 @@ void GuiPhoneWindow(GuiPhoneWindowState *state) {
     }
     if (GuiDropdownBox(
             (Rectangle){state->anchor02.x + 32, state->anchor02.y + 56, 80, 24},
-            "Huffy;Snuffy;Abeera", &state->DropdownNoun1Active,
+            state->DropdownNoun1, &state->DropdownNoun1Active,
             state->DropdownNoun1Edit))
       state->DropdownNoun1Edit = !state->DropdownNoun1Edit;
     if (GuiDropdownBox((Rectangle){state->anchor02.x + 112,
                                    state->anchor02.y + 56, 80, 24},
-                       "And;Or;Slaps", &state->DropdownConnectorActive,
+                       state->DropdownConnector, &state->DropdownConnectorActive,
                        state->DropdownConnectorEdit))
       state->DropdownConnectorEdit = !state->DropdownConnectorEdit;
     if (GuiDropdownBox((Rectangle){state->anchor02.x + 192,
                                    state->anchor02.y + 56, 80, 24},
-                       "Huffy;Snuffy;Abeera", &state->DropdownNoun2Active,
+                       state->DropdownNoun2, &state->DropdownNoun2Active,
                        state->DropdownNoun2Edit))
       state->DropdownNoun2Edit = !state->DropdownNoun2Edit;
     if (GuiButton((Rectangle){state->anchor02.x + 192, state->anchor02.y + 160,

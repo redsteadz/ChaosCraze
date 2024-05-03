@@ -1,5 +1,6 @@
-#include "headers/ds.h"
 #include "headers/collisions.h"
+#include "headers/UI.h"
+#include "headers/ds.h"
 #include "math.h"
 #include <iostream>
 #include <raylib.h>
@@ -12,9 +13,10 @@ const int width = 800;
 const int height = 800;
 enum STATE { attack, walk, idle, hurt, death };
 
-int collisionMap[25][25] = {0};
+int CollisionMapper::collisionMap[25][25] = {0};
 
 class NPC_Characteristics {
+public:
   STATE state;
   int sentiment;
   int age;
@@ -22,14 +24,13 @@ class NPC_Characteristics {
   string name;
   int health;
 
-public:
   NPC_Characteristics(STATE state, int sentiment, int age, string occupation,
                       string name) {
     this->state = idle;
     this->sentiment = 0;
     this->age = age;
     this->occupation = occupation;
-    this->health=100;
+    this->health = 100;
     this->name = name;
   }
   friend class NPC;
@@ -43,13 +44,13 @@ public:
   void setAge(int age) { this->age = age; }
   void setOccupation(string occupation) { this->occupation = occupation; }
   void setSentiment(int sentiment) { this->sentiment = sentiment; }
-  void setHealth(int health) { 
-    if(health >= this->health)
-      this->health -=health;
+  void setHealth(int health) {
+    if (health >= this->health)
+      this->health -= health;
     else
-      this->health=0;
-     }
-  int getHealth(){ return this->health;}
+      this->health = 0;
+  }
+  int getHealth() { return this->health; }
 };
 
 class NPC_Physics {
@@ -78,10 +79,13 @@ public:
     int y = npcPosition.y / 32;
 
     // cout << collisionMap[x][y] << endl;
-    if (collisionMap[x][y] == 1 || collisionMap[x][y + 1] == 1 ||
-        collisionMap[x + 1][y] == 1 || collisionMap[x + 1][y + 1] == 1) {
-      DrawRectangleLinesEx(Rectangle{npcPosition.x, npcPosition.y, 32, 64}, 2,
-                           RED);
+    if (CollisionMapper::collisionMap[x][y] == 1 ||
+        CollisionMapper::collisionMap[x][y + 1] == 1 ||
+        CollisionMapper::collisionMap[x + 1][y] == 1 ||
+        CollisionMapper::collisionMap[x + 1][y + 1] == 1) {
+      // DrawRectangleLinesEx(Rectangle{npcPosition.x, npcPosition.y, 32, 64},
+      // 2,
+      //                      RED);
       npcPosition.x -= movement.x;
       npcPosition.y -= movement.y;
     }
@@ -177,7 +181,6 @@ public:
     Animate();
     if (isMoving)
       Random_walk();
-    Draw();
   }
   void Animate() {
     int count = 0;
@@ -185,7 +188,7 @@ public:
     if (npcTexture.width > 0 && npcTexture.height > 0) {
       numTextures = npcTexture.width / npcTexture.height;
       if (numTextures > 0) {
-        frameWidth = static_cast<float>(npcTexture.width / numTextures);
+        frameWidth = static_cast<float>((float)npcTexture.width / numTextures);
       }
     }
     int maxFrames = static_cast<int>(npcTexture.width / frameWidth);
@@ -262,6 +265,23 @@ public:
 
   vector<Point<NPC>> QueryRec(Rectangle r) { return Q->query(r); }
 
+  bool ActionProbablity(NPC *npc1, NPC *npc2) {
+    int g = abs(npc1->age - npc2->age);
+     int o;
+    if (npc1->occupation != npc2->occupation) {
+      int o = 1;
+    } else {
+      o = 0;
+    }
+    int y =
+        (-(4 * npc1->sentiment) - (4 * npc2->sentiment) - (g / 3) + o + 14) /
+        22;
+    if (y >= 0.5) {
+      return true;
+    } else {
+      return false;
+    }
+  }
   void ChangeSentimentVal(string target, int val) {
     for (NPC *npc : npcList) {
       if (npc->getName() == target || npc->getOccupation() == target) {
@@ -289,54 +309,86 @@ public:
     delete Q;
   }
 };
-class Games{
+
+class Game : public NPC_Interactions, public UI {
   static int deathCount;
-    NPC_Interactions npc;
-    public:
-    void Random_interactions(){
-      vector<pair<NPC*,NPC*>> pairList;
-      pairList.push_back(npc.CheckCollisions());
-      for(pair : pairList){
-      if(npc.ActionProbability(pair.first,pair.second) && pair.first->getState() != death && pair.first->getState() != attack && pair.second->getState() != death && pair.second->getState() != attack)
-      {
-        if(pair.first->getSentiment() >=-1 && pair.first->getSentiment() <=1 && pair.second->getSentiment() >=-1 && pair.second->getSentiment() <=1){
-         if(pair.first->getSentiment() > pair.second->getSentiment() || pair.first->getSentiment() == pair.second->getSentiment() ){
-            pair.second->setState(attack);
-            if(pair.first->getSentiment() >0)
-                pair.first->setHealth(15);
-            else if(pair.first->getSentiment() <0)
-                pair.first->setHealth(25);
+public:
+  void Draw() {
+    NPC_Interactions::Draw();
+    UI::Draw();
+  }
+    void Random_interactions() {
+    vector<pair<NPC *, NPC *>> pairList = CheckCollisions();
+    for (auto o : pairList) {
+      if (ActionProbablity(o.first, o.second) &&
+          o.first->getState() != death && o.first->getState() != attack &&
+          o.second->getState() != death && o.second->getState() != attack) {
+        if (o.first->getSentiment() >= -1 && o.first->getSentiment() <= 1 &&
+            o.second->getSentiment() >= -1 && o.second->getSentiment() <= 1) {
+          if (o.first->getSentiment() > o.second->getSentiment() ||
+              o.first->getSentiment() == o.second->getSentiment()) {
+            o.second->setState(attack);
+            if (o.first->getSentiment() > 0)
+              o.first->setHealth(15);
+            else if (o.first->getSentiment() < 0)
+              o.first->setHealth(25);
             else
-                pair.first->setHealth(10);       
-        }
-        else if(pair.first->getSentiment() < pair.second->getSentiment()){
-           pair.first->setState(attack);
-            if(pair.second->getSentiment() >0)
-              
-                pair.second->setHealth(15);
-              
-            else if(pair.second->getSentiment() <0)
-              
-                pair.second->setHealth(25);
-              
+              o.first->setHealth(10);
+          } else if (o.first->getSentiment() < o.second->getSentiment()) {
+            o.first->setState(attack);
+            if (o.second->getSentiment() > 0)
+
+              o.second->setHealth(15);
+
+            else if (o.second->getSentiment() < 0)
+
+              o.second->setHealth(25);
+
             else
-              
-                pair.second->setHealth(10);
-                       
+
+              o.second->setHealth(10);
+          }
         }
+        if (o.first->getHealth() == 0) {
+          o.first->setState(death);
+          deathCount++;
+        } else if (o.second->getHealth() == 0) {
+          o.second->setState(death);
+          deathCount++;
+        }
+      }
     }
-    if(pair.first->getHealth() ==0){
-      pair.first->setState(death);
-      deathCount++;
+  }
+  void Update() {
+    if (UI::getPostedState()){
+      // Grab the second Noun 
+      // Grab the connect 
+      string target = DropdownNoun2[ActiveDropdownNoun2()];
+      cout << target << endl;
+      NPC_Interactions::ChangeSentimentVal(target, 1);
+      UI::setPostedState(0);
     }
-    else if(pair.second->getHealth() ==0){
-      pair.second->setState(death);
-      deathCount++;
+    if (capture == 2) {
+      // It has captured some shit, Grab the npcs from rectangle
+      Rectangle captured = rect;
+      cout << captured.x << " " << captured.y << " " << captured.width << " "
+           << captured.height << endl;
+      vector<Point<NPC>> collided = QueryRec(captured);
+      vector<string> names;
+      for (Point<NPC> npc : collided) {
+        // Update the options in the caption
+        names.push_back(npc.data->getName());
+        cout << npc.data->getName() << " ";
+      }
+      if (!names.empty())
+        setCaption(names);
+
+      UI::capture = 0;
     }
-}
-}
-}
+    NPC_Interactions::Update();
+  }
 };
+
 int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
@@ -345,7 +397,8 @@ int main() {
   srand(time(NULL));
   //  NPC(string _name, Vector2 pos, float spd, STATE state, int sentiment, int
   //  age, string occupation)
-  NPC_Interactions Game;
+  // NPC_Interactions Game;
+  Game Game;
 
   CollisionMapper::LoadCollisionMap();
 
@@ -361,27 +414,21 @@ int main() {
   Game.AddNPC(&Man);
   Game.AddNPC(&Woman);
 
-
   Map map = LoadTiled("../assets/TileMap/Final.json");
-
 
   int stateC = 4;
 
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     BeginDrawing();
-    ClearBackground(BLACK);
-
+    ClearBackground(WHITE);
     DrawTiled(map, 0, 0, WHITE);
-
-
     // CollisionMapper::DrawCollisionMap();
+
     Game.Draw();
-    Game.CheckCollisions();
-
-
-    Game.Update();
     EndDrawing();
+    Game.HandleCapture();
+    Game.Update();
   }
   UnloadMap(map);
   CloseWindow();
