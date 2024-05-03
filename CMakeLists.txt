@@ -4,6 +4,8 @@ project(ChaosCraze)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake)
 
+
+
 # On Windows, adjust the raylib path
 
 # Add include directories
