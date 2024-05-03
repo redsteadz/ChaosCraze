@@ -49,8 +49,6 @@ public:
             CollisionMapper::SaveCollisionMap();
         }
     }
-
-private:
     static int collisionMap[25][25];
 };
 
