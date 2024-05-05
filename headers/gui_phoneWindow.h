@@ -120,7 +120,9 @@ GuiPhoneWindowState InitGuiPhoneWindow(void) {
   state.DropdownNoun2Active = 0;
 
   state.DropdownNoun1 = "-;-;-";
-  state.DropdownConnector = "attack;slap;galnotch";
+  state.DropdownConnector = "attack;slap;galnotch;hugs;treat";
+  // Negative Connector Snetiment dec 
+  // Positive Connector Sentiment inc
   state.DropdownNoun2 = "-;-;-";
 
   state.posted = 0;
@@ -136,9 +138,6 @@ Rectangle GuiGetPhoneBox001(void) {
 
 static void Button005(int A, int B, int C, GuiPhoneWindowState &state) {
   // TODO: Implement control logic
-  const char *text[] = {"Huffy", "Snuffy", "Abeera"};
-  const char *text2[] = {"And", "Or", "Slaps"};
-  std::cout << text[A] << " " << text2[B] << " " << text[C] << std::endl;
   state.posted = 1;
   if (IsTextureReady(state.Image001))
     UnloadTexture(state.Image001);

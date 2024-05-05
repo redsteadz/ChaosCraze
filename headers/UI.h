@@ -1,9 +1,11 @@
 #ifndef UI_H
 #define UI_H
 #include <iostream>
+#include <iterator>
 #include <raylib.h>
 #include <string.h>
 #include <string>
+#include <set>
 #include <vector>
 using namespace std;
 #define RAYGUI_IMPLEMENTATION
@@ -25,7 +27,11 @@ class UI {
 public:
   vector<string> DropdownNoun1;
   vector<string> DropdownNoun2;
-  
+  const vector<string> DropdownConnector = {"attack", "slap", "galnotch",
+                                            "hugs", "treat"};
+  const set<string> neg = {"attack", "slap", "galnotch"};
+  const set<string> pos = {"hugs", "treat"};
+
   Rectangle rect;
   int capture = 0;
   UI() {
@@ -36,7 +42,10 @@ public:
   }
   int getPostedState() { return phoneWindowState.posted; };
   void setPostedState(int i) { phoneWindowState.posted = i; };
-  int ActiveDropdownNoun2(){return phoneWindowState.DropdownNoun2Active;};
+  int ActiveDropdownNoun2() { return phoneWindowState.DropdownNoun2Active; };
+  int ActiveDropdownConnector() {
+    return phoneWindowState.DropdownConnectorActive;
+  }
   void Draw() {
     if (capture == 1) {
       DrawRectangleLinesEx(rect, 3, BLACK);
