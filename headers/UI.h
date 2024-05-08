@@ -1,6 +1,8 @@
 #ifndef UI_H
 #define UI_H
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <iterator>
 #include <raylib.h>
 #include <string.h>
@@ -16,8 +18,31 @@ using namespace std;
 
 #include "gui_cameraToggle.h"
 #include "gui_phoneWindow.h"
+class StatusBar{
+  public:
+  void DrawStausBar(int alive_count,int health_count,float sentiment_count,int total_count){
+    ostringstream oss;
+    oss <<fixed << setprecision(2) << sentiment_count;
+    string formatted_sentiment_count = oss.str();
+     DrawRectangle(46,13,135,25,SKYBLUE);
+     DrawRectangleLines(46,13,135,25,SKYBLUE);
+     DrawText("Alive ",63,16,18,WHITE);
+     DrawText(to_string(alive_count).c_str(),117,16,18,WHITE);
+     DrawText("/",126,16,18,WHITE);
+     DrawText(to_string(total_count).c_str(),140,16,18,WHITE);
+     DrawRectangle(327,13,135,25,SKYBLUE);
+     DrawRectangleLines(327,13,135,25,SKYBLUE);
+     DrawText("Health ",349,16,18,WHITE);
+     DrawText(to_string(health_count).c_str(),420,16,18,WHITE);
+     DrawRectangle(600,13,135,25,SKYBLUE);
+     DrawRectangleLines(600,13,135,25,SKYBLUE);
+     DrawText("Sentiment  ",610,16,18,WHITE);
+     DrawText(formatted_sentiment_count.c_str(),697,16,18,WHITE);
+  }
 
-class UI {
+
+};
+class UI :public StatusBar{
   // Constructor makes all the necessary UI elements
   GuiPhoneWindowState phoneWindowState;
   GuiCameraToggleState cameraToggleState;
@@ -46,7 +71,7 @@ public:
   int ActiveDropdownConnector() {
     return phoneWindowState.DropdownConnectorActive;
   }
-  void Draw() {
+  void Draw(int alive_count,int health_count,float sentiment_total,int total_count) {
     if (capture == 1) {
       DrawRectangleLinesEx(rect, 3, BLACK);
     } else if (capture == 2) {
@@ -57,7 +82,7 @@ public:
     phoneWindowState.PhoneBox001Active = cameraToggleState.Toggle000Active;
     GuiPhoneWindow(&phoneWindowState);
     cameraToggleState.Toggle000Active = phoneWindowState.PhoneBox001Active;
-
+    DrawStausBar(alive_count,health_count,sentiment_total,total_count);
     // DrawTexture(screenShotTexture, 0, 0, WHITE);
   }
   void HandleCapture() {
@@ -111,7 +136,7 @@ public:
     strcpy(phoneWindowState.DropdownNoun1, s.c_str());
     strcpy(phoneWindowState.DropdownNoun2, s.c_str());
   }
-
+  
 private:
   void ResetCapture() {
     if (IsTextureReady(screenShotTexture))

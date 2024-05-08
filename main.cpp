@@ -11,8 +11,8 @@
 #include <iostream>
 #include <raylib.h>
 #include <string>
-#define RAYLIB_TILESON_IMPLEMENTATION
-#include "raylib-tileson.h"
+ //#define RAYLIB_TILESON_IMPLEMENTATION
+// #include "raylib-tileson.h"
 #include <chrono>
 #include <random>
 #include <unistd.h> // For getpid()
@@ -260,7 +260,6 @@ private:
 class NPC_Interactions {
   vector<NPC *> npcList;
   QuadTree<NPC> *Q;
-
 public:
   bool run = true;
   void AddNPC(NPC *npc) { npcList.push_back(npc); }
@@ -288,7 +287,21 @@ public:
     }
     return collisions;
   }
-
+  float calculateSentiment(){
+    float sentiment_total=0;
+    for(int i=0;i<npcList.size();i++){
+      sentiment_total+=npcList[i]->getSentiment();
+    }
+    cout<<"SENTIMNET"<<sentiment_total<<endl;
+    return sentiment_total;
+  }
+  int calculateHealth(){
+    int health_total=0;
+    for(int i=0;i<npcList.size();i++){
+      health_total+=npcList[i]->getHealth();
+    }
+    return health_total;
+  }
   vector<Point<NPC>> QueryRec(Rectangle r) { return Q->query(r); }
 
   double calculateProbability(double s1, double s2, double g, double o) {
@@ -371,16 +384,19 @@ public:
     }
     delete Q;
   }
+  int getListsize(){
+    return npcList.size();
+  }
 };
 
 class Game : public NPC_Interactions, public UI {
   static int deathCount;
-
 public:
   void Draw() {
     NPC_Interactions::Draw();
-    UI::Draw();
+    UI::Draw(getListsize()-deathCount,calculateHealth(),calculateSentiment(),getListsize());
   }
+  
   void Random_interactions() {
     vector<pair<NPC *, NPC *>> pairList = CheckCollisions();
     // cout << pairList.size() << endl;
@@ -461,6 +477,7 @@ public:
       UI::capture = 0;
     }
     Random_interactions();
+
     NPC_Interactions::Update();
   }
 };
@@ -477,37 +494,39 @@ int main() {
   //  age, string occupation)
   // NPC_Interactions Game;
   Game Game;
-
+  Texture2D map;
+  map=LoadTexture("../assets/TileMap/PNG/Map2.png");
   CollisionMapper::LoadCollisionMap();
-
+  
   NPC Boy("Boy", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
   NPC Girl("Girl", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
   NPC Old_Man("Old_man", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
   NPC Man("Man", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
   NPC Woman("Woman", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
-
+  
   Game.AddNPC(&Boy);
   Game.AddNPC(&Girl);
   Game.AddNPC(&Old_Man);
   Game.AddNPC(&Man);
   Game.AddNPC(&Woman);
 
-  Map map = LoadTiled("../assets/TileMap/Final.json");
+  // Map map = LoadTiled("../assets/TileMap/Final.json");
 
   int stateC = 4;
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(WHITE);
-    DrawTiled(map, 0, 0, WHITE);
+    // DrawTiled(map, 0, 0, WHITE);
     // CollisionMapper::DrawCollisionMap();
-
+    DrawTexture(map,0,0,WHITE);
     Game.Draw();
     EndDrawing();
     Game.HandleCapture();
     Game.Update();
   }
-  UnloadMap(map);
+  UnloadTexture(map);
+  // UnloadMap(map);
   CloseWindow();
   return 0;
 }
