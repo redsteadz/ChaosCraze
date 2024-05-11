@@ -56,10 +56,7 @@ public:
     }
     GuiCameraToggle(&cameraToggleState);
     phoneWindowState.PhoneBox001Active = cameraToggleState.Toggle000Active;
-    phoneWindowState.anchor02 = GetScreenToWorld2D(phoneWindowState.anchor02 , *camera);
-    Vector2 save = camera->target;
-    // camera->target = GetScreenToWorld2D({0, 0}, *camera);
-    cameraToggleState.anchor = GetScreenToWorld2D(cameraToggleState.anchor, *camera);
+    // phoneWindowState.anchor02 = GetScreenToWorld2D(phoneWindowState.anchor02 , *camera);
     // camera->target = save;
     GuiPhoneWindow(&phoneWindowState);
     cameraToggleState.Toggle000Active = phoneWindowState.PhoneBox001Active;
@@ -68,7 +65,8 @@ public:
   }
   void HandleCapture() {
     // Make a Rectangle around the cursor
-    Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+    // Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+    Vector2 mousePos = GetMousePosition();
     // cout << mousePos.x << " " << mousePos.y << endl;
     capture = 0;
     // Check if in bounds of toggle button OR it is toggled on AND in Phone

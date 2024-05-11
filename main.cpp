@@ -29,8 +29,9 @@ int CollisionMapper::collisionMap[25][25] = {0};
 class CameraController {
   // Make a camera Object
   Camera2D camera;
+
 public:
-  Camera2D* getCamera() { return &this->camera; }
+  Camera2D *getCamera() { return &this->camera; }
   CameraController() {
     camera.target = GetMousePosition();
     camera.offset = (Vector2){0, 0};
@@ -40,9 +41,9 @@ public:
 
   void BeginCamera() { BeginMode2D(camera); }
   void EndCamera() { EndMode2D(); }
-  
+
   void MoveCamera() {
-    // Right click drag to move the camera 
+    // Right click drag to move the camera
     if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
       Vector2 mouseDelta = GetMouseDelta();
       camera.offset.x += mouseDelta.x;
@@ -75,40 +76,39 @@ public:
     }
   }
 
-  void Control(){
+  void Control() {
     ZoomControl();
     MoveCamera();
     CheckBounds();
   }
 
-  void CheckBounds(){
-          Vector2 TopLeft = GetScreenToWorld2D(Vector2{0, 0}, camera);
-      Vector2 BottomRight = GetScreenToWorld2D(Vector2{800, 800}, camera);
+  void CheckBounds() {
+    Vector2 TopLeft = GetScreenToWorld2D(Vector2{0, 0}, camera);
+    Vector2 BottomRight = GetScreenToWorld2D(Vector2{800, 800}, camera);
 
-      // Check if the camera goes out of bounds
-      // cout << TopLeft.x << " " << TopLeft.y << " " << BottomRight.x << " " <<
-          // BottomRight.y << endl;
-      if (TopLeft.x < 0) {
-        camera.offset.x += TopLeft.x;
-      }
-      if (TopLeft.y < 0) {
-        camera.offset.y += TopLeft.y;
-      }
-      if (BottomRight.x > 800) {
-        camera.offset.x -= 800 - BottomRight.x;
-      }
-      if (BottomRight.y > 800) {
-        camera.offset.y -= 800 - BottomRight.y;
-      }
+    // Check if the camera goes out of bounds
+    // cout << TopLeft.x << " " << TopLeft.y << " " << BottomRight.x << " " <<
+    // BottomRight.y << endl;
+    if (TopLeft.x < 0) {
+      camera.offset.x += TopLeft.x;
+    }
+    if (TopLeft.y < 0) {
+      camera.offset.y += TopLeft.y;
+    }
+    if (BottomRight.x > 800) {
+      camera.offset.x -= 800 - BottomRight.x;
+    }
+    if (BottomRight.y > 800) {
+      camera.offset.y -= 800 - BottomRight.y;
+    }
 
-      // If the camera is out of bounds, adjust its position
-      // if (outOfBounds) {
-      //   camera.target = GetScreenToWorld2D(
-      //       Vector2{800 / 2, 800 / 2}, camera);
-      // }
+    // If the camera is out of bounds, adjust its position
+    // if (outOfBounds) {
+    //   camera.target = GetScreenToWorld2D(
+    //       Vector2{800 / 2, 800 / 2}, camera);
+    // }
 
-      this->camera = camera;
-
+    this->camera = camera;
   }
 
   // Control that Camera Object the map
@@ -465,10 +465,18 @@ public:
 
 class Game : public NPC_Interactions, public UI {
   static int deathCount;
+
 public:
-  void Draw() {
-    NPC_Interactions::Draw();
+  Game() {}
+  void DrawUI(){
     UI::Draw();
+  }
+  void DrawNPC(){
+    NPC_Interactions::Draw();
+  }
+  void Draw() {
+    DrawNPC();
+    DrawUI();
   }
   void Random_interactions() {
     vector<pair<NPC *, NPC *>> pairList = CheckCollisions();
@@ -568,6 +576,7 @@ int main() {
   // NPC_Interactions Game;
   Game Game;
 
+  CameraController c;
   CollisionMapper::LoadCollisionMap();
 
   NPC Boy("Boy", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
@@ -581,25 +590,23 @@ int main() {
   Game.AddNPC(&Old_Man);
   Game.AddNPC(&Man);
   Game.AddNPC(&Woman);
-  
+
   Map map = LoadTiled("../assets/TileMap/Final.json");
-  CameraController c;
-  Game.setCamera(c.getCamera());
-  int stateC = 4;
-  STATE state_list[] = {idle, walk, attack, hurt, death};
+  // int stateC = 4;
+  // STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     c.Control();
     BeginDrawing();
-    c.BeginCamera();
     ClearBackground(WHITE);
+    c.BeginCamera();
     DrawTiled(map, 0, 0, WHITE);
+    Game.DrawNPC();
     // CollisionMapper::DrawCollisionMap();
-
-    Game.Draw();
+    c.EndCamera();
+    Game.DrawUI();
     EndDrawing();
     Game.HandleCapture();
     Game.Update();
-    c.EndCamera();
   }
   UnloadMap(map);
   CloseWindow();
