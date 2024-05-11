@@ -23,7 +23,7 @@ class UI {
   GuiCameraToggleState cameraToggleState;
   Image screenShot;
   Texture2D screenShotTexture;
-
+  Camera2D *camera;
 public:
   vector<string> DropdownNoun1;
   vector<string> DropdownNoun2;
@@ -40,6 +40,7 @@ public:
     rect = {0, 0, 160, 120};
     ResetCapture();
   }
+  void setCamera(Camera2D *c) { camera = c; }
   int getPostedState() { return phoneWindowState.posted; };
   void setPostedState(int i) { phoneWindowState.posted = i; };
   int ActiveDropdownNoun2() { return phoneWindowState.DropdownNoun2Active; };
@@ -55,6 +56,11 @@ public:
     }
     GuiCameraToggle(&cameraToggleState);
     phoneWindowState.PhoneBox001Active = cameraToggleState.Toggle000Active;
+    phoneWindowState.anchor02 = GetScreenToWorld2D(phoneWindowState.anchor02 , *camera);
+    Vector2 save = camera->target;
+    // camera->target = GetScreenToWorld2D({0, 0}, *camera);
+    cameraToggleState.anchor = GetScreenToWorld2D(cameraToggleState.anchor, *camera);
+    // camera->target = save;
     GuiPhoneWindow(&phoneWindowState);
     cameraToggleState.Toggle000Active = phoneWindowState.PhoneBox001Active;
 
@@ -62,11 +68,12 @@ public:
   }
   void HandleCapture() {
     // Make a Rectangle around the cursor
-    Vector2 mousePos = GetMousePosition();
+    Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
+    // cout << mousePos.x << " " << mousePos.y << endl;
     capture = 0;
     // Check if in bounds of toggle button OR it is toggled on AND in Phone
     // Bound
-    if (CheckCollisionPointRec(mousePos, GetGuiCameraToggleBounds()))
+    if (CheckCollisionPointRec(mousePos, GetGuiCameraToggleBounds(&cameraToggleState)))
       return;
     if (cameraToggleState.Toggle000Active &&
         CheckCollisionPointRec(mousePos, GuiGetPhoneBox001()))

@@ -10,6 +10,7 @@
 #include <cstring>
 #include <iostream>
 #include <raylib.h>
+#include <raymath.h>
 #include <string>
 #define RAYLIB_TILESON_IMPLEMENTATION
 #include "raylib-tileson.h"
@@ -24,6 +25,95 @@ const int height = 800;
 enum STATE { attack, walk, idle, hurt, death };
 
 int CollisionMapper::collisionMap[25][25] = {0};
+
+class CameraController {
+  // Make a camera Object
+  Camera2D camera;
+public:
+  Camera2D* getCamera() { return &this->camera; }
+  CameraController() {
+    camera.target = GetMousePosition();
+    camera.offset = (Vector2){0, 0};
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+  }
+
+  void BeginCamera() { BeginMode2D(camera); }
+  void EndCamera() { EndMode2D(); }
+  
+  void MoveCamera() {
+    // Right click drag to move the camera 
+    if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+      Vector2 mouseDelta = GetMouseDelta();
+      camera.offset.x += mouseDelta.x;
+      camera.offset.y += mouseDelta.y;
+    }
+  }
+
+  void ZoomControl() {
+    // Zoom based on mouse wheel
+    float wheel = GetMouseWheelMove();
+    if (wheel != 0) {
+      Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), camera);
+
+      // Top left Corner of the screen
+
+      // Set the offset to where the mouse is
+      camera.offset = GetMousePosition();
+      // Set the target to match, so that the camera maps the world space point
+      // under the cursor to the screen space point under the cursor at any zoom
+      camera.target = mouseWorldPos;
+
+      // Zoom increment
+      const float zoomIncrement = 0.25f;
+
+      camera.zoom += (wheel * zoomIncrement);
+      if (camera.zoom < zoomIncrement)
+        camera.zoom = zoomIncrement;
+      if (camera.zoom < 1)
+        camera.zoom = 1;
+    }
+  }
+
+  void Control(){
+    ZoomControl();
+    MoveCamera();
+    CheckBounds();
+  }
+
+  void CheckBounds(){
+          Vector2 TopLeft = GetScreenToWorld2D(Vector2{0, 0}, camera);
+      Vector2 BottomRight = GetScreenToWorld2D(Vector2{800, 800}, camera);
+
+      // Check if the camera goes out of bounds
+      // cout << TopLeft.x << " " << TopLeft.y << " " << BottomRight.x << " " <<
+          // BottomRight.y << endl;
+      if (TopLeft.x < 0) {
+        camera.offset.x += TopLeft.x;
+      }
+      if (TopLeft.y < 0) {
+        camera.offset.y += TopLeft.y;
+      }
+      if (BottomRight.x > 800) {
+        camera.offset.x -= 800 - BottomRight.x;
+      }
+      if (BottomRight.y > 800) {
+        camera.offset.y -= 800 - BottomRight.y;
+      }
+
+      // If the camera is out of bounds, adjust its position
+      // if (outOfBounds) {
+      //   camera.target = GetScreenToWorld2D(
+      //       Vector2{800 / 2, 800 / 2}, camera);
+      // }
+
+      this->camera = camera;
+
+  }
+
+  // Control that Camera Object the map
+  // Right click drag changes the Camera
+};
 
 class NPC_Characteristics {
 public:
@@ -204,7 +294,7 @@ public:
       StatusState.layoutRecs[1] =
           (Rectangle){npcPosition.x + -48, npcPosition.y + -16, 104, 12};
       StatusState.ProgressBar001Value = health / 100.0;
-      cout << " HELLO " << endl;
+      // cout << " HELLO " << endl;
       GUIStatusBar(&StatusState);
     }
   }
@@ -236,7 +326,7 @@ public:
             setState(walk);
         }
       }
-      cout << name << " " << frame << endl;
+      // cout << name << " " << frame << endl;
     }
 
     // cout << frame << endl;
@@ -337,7 +427,7 @@ public:
         calculateProbability(npc1->sentiment, npc2->sentiment, (g + 3), o) /
         30.0;
     bool val = probabilityBasedFunction(y);
-    cout << y << " " << val << endl;
+    // cout << y << " " << val << endl;
     if (val) {
       return true;
     } else {
@@ -375,7 +465,6 @@ public:
 
 class Game : public NPC_Interactions, public UI {
   static int deathCount;
-
 public:
   void Draw() {
     NPC_Interactions::Draw();
@@ -386,8 +475,9 @@ public:
     // cout << pairList.size() << endl;
     for (auto o : pairList) {
       bool stuff = ActionProbablity(o.first, o.second);
-      cout << stuff << " " << o.first->getName() << " " << o.second->getName()
-           << endl;
+      // cout << stuff << " " << o.first->getName() << " " <<
+      // o.second->getName()
+      // << endl;
       if (stuff && o.first->getState() != death &&
           o.first->getState() != attack && o.second->getState() != death &&
           o.second->getState() != attack) {
@@ -442,15 +532,15 @@ public:
     if (capture == 2) {
       // It has captured some shit, Grab the npcs from rectangle
       Rectangle captured = rect;
-      cout << captured.x << " " << captured.y << " " << captured.width << " "
-           << captured.height << endl;
+      // cout << captured.x << " " << captured.y << " " << captured.width << " "
+      // << captured.height << endl;
       vector<Point<NPC>> collided = QueryRec(captured);
       vector<string> names;
       for (Point<NPC> npc : collided) {
         // Update the options in the caption
         if (npc.data->state == attack || npc.data->state == hurt)
           names.push_back(npc.data->getName());
-        cout << npc.data->getName() << " ";
+        // cout << npc.data->getName() << " ";
       }
       vector<string> defaultCaption = {"Take", "Caption"};
       if (!names.empty())
@@ -491,13 +581,16 @@ int main() {
   Game.AddNPC(&Old_Man);
   Game.AddNPC(&Man);
   Game.AddNPC(&Woman);
-
+  
   Map map = LoadTiled("../assets/TileMap/Final.json");
-
+  CameraController c;
+  Game.setCamera(c.getCamera());
   int stateC = 4;
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
+    c.Control();
     BeginDrawing();
+    c.BeginCamera();
     ClearBackground(WHITE);
     DrawTiled(map, 0, 0, WHITE);
     // CollisionMapper::DrawCollisionMap();
@@ -506,6 +599,7 @@ int main() {
     EndDrawing();
     Game.HandleCapture();
     Game.Update();
+    c.EndCamera();
   }
   UnloadMap(map);
   CloseWindow();

@@ -32,7 +32,7 @@
 
 typedef struct {
     bool Toggle000Active;
-
+    Vector2 anchor;
     // Custom state variables (depend on development software)
     // NOTE: This variables should be added manually if required
 
@@ -92,20 +92,20 @@ GuiCameraToggleState InitGuiCameraToggle(void)
     GuiCameraToggleState state = { 0 };
 
     state.Toggle000Active = false;
-
+    state.anchor = (Vector2){24, 300 - 24 };
     // Custom variables initialization
 
     return state;
 }
 
-Rectangle GetGuiCameraToggleBounds(void)
+Rectangle GetGuiCameraToggleBounds(GuiCameraToggleState *state)
 {
-    return (Rectangle){ 24, 300 - 24, 48, 48 };
+    return (Rectangle){ state->anchor.x, state->anchor.y, 48, 48 };
 }
 
 void GuiCameraToggle(GuiCameraToggleState *state)
 {
-    GuiToggle(GetGuiCameraToggleBounds(), "#184#", &state->Toggle000Active);
+    GuiToggle(GetGuiCameraToggleBounds(state), "#184#", &state->Toggle000Active);
 }
 
 #endif // GUI_CAMERATOGGLE_IMPLEMENTATION
