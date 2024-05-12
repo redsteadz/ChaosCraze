@@ -69,12 +69,18 @@ public:
 
 class EffectManager {
   static list<Effect> effectList; // Renamed from 'list' to 'effectList' to
+  static list<Effect> effectListUI; // Renamed from 'list' to 'effectList' to
                                   // avoid conflicts with the STL list
 
 public:
   static void addEffect(EffectType effect, Vector2 *position, int speed, bool Capture = false) {
     Effect e(effect, position, speed, Capture);
     effectList.push_back(
+        e); // Using push_back() to add the effect to the end of the list
+  }
+    static void addEffectUI(EffectType effect, Vector2 *position, int speed, bool Capture = false) {
+    Effect e(effect, position, speed, Capture);
+    effectListUI.push_back(
         e); // Using push_back() to add the effect to the end of the list
   }
 
@@ -84,6 +90,17 @@ public:
       e.Update();
       if (e.Draw()) {
         it = effectList.erase(it);
+      } else {
+        ++it;
+      }
+    }
+  }
+    static void updateEffectsUI() {
+    for (auto it = effectListUI.begin(); it != effectListUI.end();) {
+      Effect &e = *it;
+      e.Update();
+      if (e.Draw()) {
+        it = effectListUI.erase(it);
       } else {
         ++it;
       }

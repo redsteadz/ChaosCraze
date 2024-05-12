@@ -2,6 +2,7 @@
 #include "headers/collisions.h"
 #include "headers/ds.h"
 #include "headers/effects.h"
+#include "headers/sound.h"
 #include "headers/raygui.h"
 #define GUI_STATUSBAR_IMPLEMENTATION
 #include "headers/gui_statusBar.h"
@@ -422,6 +423,7 @@ public:
   void ChangeSentimentVal(string target, int val) {
     for (NPC *npc : npcList) {
       if (npc->getName() == target || npc->getOccupation() == target) {
+        cout << "-----------------" << npc->getName() << endl;
         npc->setSentiment(val);
         EffectManager::addEffect(Crystal , npc->GetPosPointer() , 10);
       }
@@ -473,8 +475,10 @@ public:
           if (o.first->getSentiment() > o.second->getSentiment() ||
               o.first->getSentiment() == o.second->getSentiment()) {
             EffectManager::addEffect(Slash, o.second->GetPosPointer(), 10);
+            PlaySound(SoundMap::soundMap[Attack]);
             o.second->setState(attack);
             EffectManager::addEffect(Blood, o.first->GetPosPointer(), 30);
+            PlaySound(SoundMap::soundMap[Hit]);
             o.first->setState(hurt);
             if (o.first->getSentiment() > 0)
               o.first->setHealth(15);
@@ -484,8 +488,10 @@ public:
               o.first->setHealth(10);
           } else if (o.first->getSentiment() < o.second->getSentiment()) {
             EffectManager::addEffect(Slash, o.first->GetPosPointer(), 10);
+            PlaySound(SoundMap::soundMap[Attack]);
             o.first->setState(attack);
             EffectManager::addEffect(Blood, o.second->GetPosPointer(), 10);
+            PlaySound(SoundMap::soundMap[Hit]);
             o.second->setState(hurt);
             if (o.second->getSentiment() > 0)
               o.second->setHealth(15);
@@ -521,12 +527,14 @@ public:
     if (capture == 2) {
       Rectangle captured = rect;
       vector<Point<NPC>> collided = QueryRec(captured);
-      vector<string> names;
+      unordered_set<string> names;
       for (Point<NPC> npc : collided) {
-        if (npc.data->getState() == attack || npc.data->getState() == hurt)
-          names.push_back(npc.data->getName());
+        if (npc.data->getState() == attack || npc.data->getState() == hurt){
+          names.insert(npc.data->getName());
+          names.insert(npc.data->getOccupation());
+        }
       }
-      vector<string> defaultCaption = {"Take", "Caption"};
+      unordered_set<string> defaultCaption = {"Take", "Caption"};
       if (!names.empty())
         setCaption(names);
       else
@@ -541,12 +549,16 @@ public:
 
 int Game::deathCount = 0;
 list<Effect> EffectManager::effectList;
+list<Effect> EffectManager::effectListUI;
 map<EffectType, Texture2D> EffectMap::effectMap;
+map<SoundType, Sound> SoundMap::soundMap;
 
 int main() {
   InitWindow(width, height, "ChaosCraze");
+  InitAudioDevice();
   // GuiLoadStyle("../assets/entefe.rgs");
   EffectMap::Init();
+  SoundMap::Init();
   SetTargetFPS(60);
   // Seed for random number
 
@@ -559,32 +571,37 @@ int main() {
   CameraController c;
   CollisionMapper::LoadCollisionMap();
 
-  NPC Boy("Boy", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
-  NPC Girl("Girl", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
-  NPC Old_Man("Old_man", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
-  NPC Man("Man", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
-  NPC Woman("Woman", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Boy("Boy", {600, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
+  NPC Girl("Girl", {700, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Old_Man("Old_man", {500, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
+  NPC Man("Man", {700, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Woman("Woman", {600, 200}, 2, STATE::walk, 0, 0, "Villagers");
 
   Game.AddNPC(&Boy);
   Game.AddNPC(&Girl);
   Game.AddNPC(&Old_Man);
   Game.AddNPC(&Man);
   Game.AddNPC(&Woman);
-
+  Music music = LoadMusicStream("../assets/sound/CLassic.mp3");
+  SetMusicVolume(music, 0.7);
+  PlayMusicStream(music);
   Map map = LoadTiled("../assets/TileMap/Final.json");
   // int stateC = 4;
   // STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     c.Control();
+    UpdateMusicStream(music);
     BeginDrawing();
     ClearBackground(WHITE);
     c.BeginCamera();
     DrawTiled(map, 0, 0, WHITE);
     Game.DrawNPC();
+    // TODO: updateEffectUI and World 
+    EffectManager::updateEffects();
     // CollisionMapper::DrawCollisionMap();
     c.EndCamera();
     Game.DrawUI();
-    EffectManager::updateEffects();
+    EffectManager::updateEffectsUI();
     EndDrawing();
     Game.HandleCapture();
     Game.Update();

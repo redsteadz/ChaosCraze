@@ -1,4 +1,5 @@
 #include "effects.h"
+#include "sound.h"
 #ifndef UI_H
 #define UI_H
 #include <iostream>
@@ -117,22 +118,26 @@ public:
       }
       // DrawRectangleRec(rect, RED);
       capture = 2;
-      EffectManager::addEffect(Capture , &mousePos, 10, true);
+      EffectManager::addEffectUI(Capture , &mousePos, 10, true);
+      PlaySound(SoundMap::soundMap[Confirm]);
       return;
     }
     // DrawRectangleLinesEx(rect, 3, BLACK);
     capture = 1;
   }
 
-  void setCaption(vector<string> names) {
+  void setCaption(unordered_set<string> names) {
     string s = "";
+    int size = names.size();
+    int i = 0;
     for (string x : names) {
+      DropdownNoun1.push_back(x);
+      DropdownNoun2.push_back(x);
       s += x;
-      if (x != names.back())
+      i++;
+      if (i != size)
         s += ";";
     }
-    DropdownNoun1 = names;
-    DropdownNoun2 = names;
     phoneWindowState.DropdownNoun1 = new char[s.size() + 1];
     phoneWindowState.DropdownNoun2 = new char[s.size() + 1];
     strcpy(phoneWindowState.DropdownNoun1, s.c_str());
