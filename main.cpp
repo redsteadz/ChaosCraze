@@ -1,6 +1,7 @@
 #include "headers/UI.h"
 #include "headers/collisions.h"
 #include "headers/ds.h"
+#include "headers/effects.h"
 #include "headers/raygui.h"
 #define GUI_STATUSBAR_IMPLEMENTATION
 #include "headers/gui_statusBar.h"
@@ -53,22 +54,12 @@ public:
   }
 
   void ZoomControl() {
-    // Zoom based on mouse wheel
     float wheel = GetMouseWheelMove();
     if (wheel != 0) {
       Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), camera);
-
-      // Top left Corner of the screen
-
-      // Set the offset to where the mouse is
       camera.offset = GetMousePosition();
-      // Set the target to match, so that the camera maps the world space point
-      // under the cursor to the screen space point under the cursor at any zoom
       camera.target = mouseWorldPos;
-
-      // Zoom increment
       const float zoomIncrement = 0.25f;
-
       camera.zoom += (wheel * zoomIncrement);
       if (camera.zoom < zoomIncrement)
         camera.zoom = zoomIncrement;
@@ -102,14 +93,6 @@ public:
     if (BottomRight.y > 800) {
       camera.offset.y -= 800 - BottomRight.y;
     }
-
-    // If the camera is out of bounds, adjust its position
-    // if (outOfBounds) {
-    //   camera.target = GetScreenToWorld2D(
-    //       Vector2{800 / 2, 800 / 2}, camera);
-    // }
-
-    this->camera = camera;
   }
 
   // Control that Camera Object the map
@@ -117,7 +100,6 @@ public:
 };
 
 class NPC_Characteristics {
-public:
   STATE state;
   float sentiment;
   int age;
@@ -125,6 +107,7 @@ public:
   string name;
   int health;
 
+public:
   NPC_Characteristics(STATE state, float sentiment, int age, string occupation,
                       string name) {
     this->state = idle;
@@ -416,17 +399,17 @@ public:
   }
 
   bool ActionProbablity(NPC *npc1, NPC *npc2) {
-    int g = abs(npc1->age - npc2->age);
+    int g = abs(npc1->getAge() - npc2->getAge());
     int o;
-    if (npc1->occupation != npc2->occupation) {
+    if (npc1->getOccupation() != npc2->getOccupation()) {
       o = 1;
     } else {
       o = 0;
     }
 
-    float y =
-        calculateProbability(npc1->sentiment, npc2->sentiment, (g + 3), o) /
-        30.0;
+    float y = calculateProbability(npc1->getSentiment(), npc2->getSentiment(),
+                                   (g + 3), o) /
+              30.0;
     bool val = probabilityBasedFunction(y);
     // cout << y << " " << val << endl;
     if (val) {
@@ -469,12 +452,8 @@ class Game : public NPC_Interactions, public UI {
 
 public:
   Game() {}
-  void DrawUI(){
-    UI::Draw();
-  }
-  void DrawNPC(){
-    NPC_Interactions::Draw();
-  }
+  void DrawUI() { UI::Draw(); }
+  void DrawNPC() { NPC_Interactions::Draw(); }
   void Draw() {
     DrawNPC();
     DrawUI();
@@ -484,9 +463,6 @@ public:
     // cout << pairList.size() << endl;
     for (auto o : pairList) {
       bool stuff = ActionProbablity(o.first, o.second);
-      // cout << stuff << " " << o.first->getName() << " " <<
-      // o.second->getName()
-      // << endl;
       if (stuff && o.first->getState() != death &&
           o.first->getState() != attack && o.second->getState() != death &&
           o.second->getState() != attack) {
@@ -494,7 +470,9 @@ public:
             (o.second->getSentiment() >= -1 && o.second->getSentiment() <= 1)) {
           if (o.first->getSentiment() > o.second->getSentiment() ||
               o.first->getSentiment() == o.second->getSentiment()) {
+            EffectManager::addEffect(Slash, o.second->GetPos(), 10);
             o.second->setState(attack);
+            EffectManager::addEffect(Blood, o.first->GetPos(), 30);
             o.first->setState(hurt);
             if (o.first->getSentiment() > 0)
               o.first->setHealth(15);
@@ -530,8 +508,6 @@ public:
       string target = DropdownNoun2[ActiveDropdownNoun2()];
       string adj = DropdownConnector[ActiveDropdownConnector()];
       if (neg.count(adj) > 0) {
-        // Decrease the sentiment
-        // Calculate the sentiment value for the targets
         ChangeSentimentVal(target, -1);
       } else {
         ChangeSentimentVal(target, 1);
@@ -539,17 +515,12 @@ public:
       UI::setPostedState(0);
     }
     if (capture == 2) {
-      // It has captured some shit, Grab the npcs from rectangle
       Rectangle captured = rect;
-      // cout << captured.x << " " << captured.y << " " << captured.width << " "
-      // << captured.height << endl;
       vector<Point<NPC>> collided = QueryRec(captured);
       vector<string> names;
       for (Point<NPC> npc : collided) {
-        // Update the options in the caption
-        if (npc.data->state == attack || npc.data->state == hurt)
+        if (npc.data->getState() == attack || npc.data->getState() == hurt)
           names.push_back(npc.data->getName());
-        // cout << npc.data->getName() << " ";
       }
       vector<string> defaultCaption = {"Take", "Caption"};
       if (!names.empty())
@@ -565,10 +536,13 @@ public:
 };
 
 int Game::deathCount = 0;
+list<Effect> EffectManager::effectList;
+map<EffectType, Texture2D> EffectMap::effectMap;
 
 int main() {
   InitWindow(width, height, "ChaosCraze");
   // GuiLoadStyle("../assets/entefe.rgs");
+  EffectMap::Init();
   SetTargetFPS(60);
   // Seed for random number
 
@@ -606,6 +580,7 @@ int main() {
     // CollisionMapper::DrawCollisionMap();
     c.EndCamera();
     Game.DrawUI();
+    EffectManager::updateEffects();
     EndDrawing();
     Game.HandleCapture();
     Game.Update();
