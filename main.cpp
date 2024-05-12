@@ -390,11 +390,12 @@ public:
 };
 
 class Game : public NPC_Interactions, public UI {
-  static int deathCount;
 public:
+  static int deathCount;
   void Draw() {
     NPC_Interactions::Draw();
     UI::Draw(getListsize()-deathCount,calculateHealth(),calculateSentiment(),getListsize());
+
   }
   
   void Random_interactions() {
@@ -483,7 +484,13 @@ public:
 };
 
 int Game::deathCount = 0;
-
+enum GameState{
+  mainScreen,
+  GameScreen,
+  optionsMenu,
+  quitGame,
+  PauseWindow
+};
 int main() {
   InitWindow(width, height, "My first RAYLIB program!");
   SetTargetFPS(60);
@@ -497,7 +504,10 @@ int main() {
   Texture2D map;
   map=LoadTexture("../assets/TileMap/PNG/Map2.png");
   CollisionMapper::LoadCollisionMap();
-  
+  Texture2D logo;
+  logo=LoadTexture("../assets/Thing.png");
+  Texture2D main;
+  main=LoadTexture("../assets/mainscreen.png");
   NPC Boy("Boy", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
   NPC Girl("Girl", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
   NPC Old_Man("Old_man", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
@@ -511,20 +521,59 @@ int main() {
   Game.AddNPC(&Woman);
 
   // Map map = LoadTiled("../assets/TileMap/Final.json");
-
+  GameState currentState=mainScreen;
   int stateC = 4;
+  UI startingMenu;
+  UI statusBar;
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     BeginDrawing();
-    ClearBackground(WHITE);
+    ClearBackground(BLACK);
+    switch(currentState){
+      case mainScreen:
+      DrawTexture(main,0,0,WHITE);
+      startingMenu.DrawStartingMenu();
+      DrawTextureEx(logo,{145,10},0.0f,1,WHITE);
+      startingMenu.transition();
+      if(startingMenu.isPressed1())
+      {
+        currentState=GameScreen;      
+      }
+      if(startingMenu.isPressed2()){
+        currentState=optionsMenu;
+      }
+      if(startingMenu.isPressed3()){
+        currentState=quitGame;
+      }
+      break;
+      case quitGame:
+      CloseWindow();
+      break;
+      case GameScreen:
+      DrawTextureEx(map,Vector2{0.0,0.0},0,1.04,WHITE);
+      Game.Draw();
+      Game.HandleCapture();
+      Game.Update();
+      if(statusBar.ispressedPauseIcon()){
+         currentState=PauseWindow;      
+      }
+      break;
+      case PauseWindow:
+       DrawTexture(main,0,0,WHITE);
+      statusBar.ShowStatus(Game.getListsize()-Game.deathCount,Game.calculateHealth(),Game.calculateSentiment(),Game.getListsize());
+      if(statusBar.isResumePressed()){
+        currentState=GameScreen;
+      }
+      if(statusBar.isExitPressed()){
+        currentState=quitGame;
+      }
+      break;
+    }
+    EndDrawing();
     // DrawTiled(map, 0, 0, WHITE);
     // CollisionMapper::DrawCollisionMap();
-    DrawTexture(map,0,0,WHITE);
-    Game.Draw();
-    EndDrawing();
-    Game.HandleCapture();
-    Game.Update();
   }
+  UnloadTexture(logo);
   UnloadTexture(map);
   // UnloadMap(map);
   CloseWindow();

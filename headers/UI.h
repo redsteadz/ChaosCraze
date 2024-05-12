@@ -14,35 +14,198 @@ using namespace std;
 #define GUI_CAMERABUTTON_IMPLEMENTATION
 #define GUI_PHONEWINDOW_IMPLEMENTATION
 #define GUI_CAMERATOGGLE_IMPLEMENTATION
+//#define GUI_MENU_IMPLEMENTATION 
 #include "raygui.h"
-
+//#include "gui_menu.h"
 #include "gui_cameraToggle.h"
 #include "gui_phoneWindow.h"
 class StatusBar{
+  Rectangle pauseButton;
+  Rectangle resumeButton;
+  Rectangle quitButton;
+  Texture2D pauseIcon;
+  bool pauseButtonpressed;
+  bool quitButtonpressed;
+  bool resumeButtonpressed;
+  Color darkRed;
+  Color neonGreen;
   public:
-  void DrawStausBar(int alive_count,int health_count,float sentiment_count,int total_count){
-    ostringstream oss;
-    oss <<fixed << setprecision(2) << sentiment_count;
-    string formatted_sentiment_count = oss.str();
-     DrawRectangle(46,13,135,25,SKYBLUE);
-     DrawRectangleLines(46,13,135,25,SKYBLUE);
-     DrawText("Alive ",63,16,18,WHITE);
-     DrawText(to_string(alive_count).c_str(),117,16,18,WHITE);
-     DrawText("/",126,16,18,WHITE);
-     DrawText(to_string(total_count).c_str(),140,16,18,WHITE);
-     DrawRectangle(327,13,135,25,SKYBLUE);
-     DrawRectangleLines(327,13,135,25,SKYBLUE);
-     DrawText("Health ",349,16,18,WHITE);
-     DrawText(to_string(health_count).c_str(),420,16,18,WHITE);
-     DrawRectangle(600,13,135,25,SKYBLUE);
-     DrawRectangleLines(600,13,135,25,SKYBLUE);
-     DrawText("Sentiment  ",610,16,18,WHITE);
-     DrawText(formatted_sentiment_count.c_str(),697,16,18,WHITE);
+  StatusBar(){
+    neonGreen= {57, 255, 20, 255};
+    darkRed = {150, 0, 0, 255};
+    pauseButtonpressed=false;
+    quitButtonpressed=false;
+    resumeButtonpressed=false;
+    pauseButton={755,0,30,30};
+    resumeButton={420,580,190,60};
+    quitButton={200,580,190,60};
+    pauseIcon=LoadTexture("../assets/pauseIcon.png");
   }
-
+  void DrawStatusBar(int alive_count,int health_count,float sentiment_total,int total_count){
+    ostringstream oss;
+    oss <<fixed << setprecision(2) << sentiment_total;
+    string formatted_sentiment_count = oss.str();
+     DrawRectangle(43,13,140,30,DARKGREEN);
+     DrawRectangleLines(43,13,140,30,BLACK);
+     DrawText("Alive ",63,19,18,WHITE);
+     DrawText(to_string(alive_count).c_str(),117,19,18,WHITE);
+     DrawText("/",126,19,18,WHITE);
+     DrawText(to_string(total_count).c_str(),140,19,18,WHITE);
+     DrawRectangle(300,13,140,30,DARKGREEN);
+     DrawRectangleLines(300,13,140,30,BLACK);
+     DrawText("Health ",325,19,18,WHITE);
+     DrawText(to_string(health_count).c_str(),396,19,18,WHITE);
+     DrawRectangle(573,13,140,30,DARKGREEN);
+     DrawRectangleLines(573,13,140,30,BLACK);
+     DrawText("Sentiment  ",586,19,18,WHITE);
+     DrawText(formatted_sentiment_count.c_str(),673,19,18,WHITE);
+     DrawRectangleRec(pauseButton,pauseButtonpressed?LIGHTGRAY:DARKGREEN);
+    DrawTextureEx(pauseIcon,(Vector2){(float)755,(float)0},0,0.09,WHITE);
+  }
+  bool ispressedPauseIcon(){
+    if(CheckCollisionPointRec(GetMousePosition(),pauseButton)){
+      if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+        pauseButtonpressed=true;
+        return true;
+      }
+      else{
+        pauseButtonpressed=false;
+      }
+      } 
+      return false;
+    }
+  void ShowStatus(int alive_count,int health_count,float sentiment_total,int total_count){
+     ostringstream oss;
+    oss <<fixed << setprecision(2) << sentiment_total;
+    string formatted_sentiment_count = oss.str();
+     DrawRectangle(265,200,280,80,DARKGREEN);
+     DrawRectangleLines(265,200,280,80,BLACK);
+     DrawText("Alive ",310,220,38,WHITE);
+     DrawText(to_string(alive_count).c_str(),430,220,38,GREEN);
+     DrawText("/",460,220,38,GREEN);
+     DrawText(to_string(total_count).c_str(),485,220,38,GREEN);
+     DrawRectangle(265,330,280,80,DARKGREEN);
+     DrawRectangleLines(265,330,280,80,BLACK);
+     DrawText("Health ",300,350,38,WHITE);
+     DrawText(to_string(health_count).c_str(),450,350,38,GREEN);
+     DrawRectangle(265,460,280,80,DARKGREEN);
+     DrawRectangleLines(265,460,280,80,BLACK);
+     DrawText("Sentiment  ",270,480,38,WHITE);
+     DrawText(formatted_sentiment_count.c_str(),460,480,38,GREEN);
+     DrawRectangleRec(quitButton,quitButtonpressed?darkRed:RED);
+     DrawRectangleLinesEx(quitButton,3,WHITE);
+     DrawText("EXIT",240,590,40,WHITE);
+     DrawRectangleRec(resumeButton,resumeButtonpressed?neonGreen:GREEN);
+     DrawRectangleLinesEx(resumeButton,3,WHITE);
+     DrawText("RESUME",430,590,40,WHITE);   
+  }
+  bool isExitPressed(){
+    if(CheckCollisionPointRec(GetMousePosition(),quitButton)){
+      quitButtonpressed=true;
+      if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+        return true;
+      }
+      } 
+      else{
+        quitButtonpressed=false;
+      }
+      return false;
+    }
+  
+  bool isResumePressed(){
+    if(CheckCollisionPointRec(GetMousePosition(),resumeButton)){
+      resumeButtonpressed=true;
+      if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+        return true;
+      }
+      } 
+      else{
+        resumeButtonpressed=false;
+      }
+      return false;
+    }
+  
 
 };
-class UI :public StatusBar{
+class StartingMenu{
+  Rectangle border;
+  Rectangle buttonrec1;
+  Rectangle buttonrec2;
+  Rectangle buttonrec3;
+  Color textColor;
+  Texture2D texture;
+  bool button1pressed;
+  bool button2pressed;
+  bool button3pressed;
+  public:
+  StartingMenu(){
+       textColor=GREEN;
+       border={20,20,760,760};
+       buttonrec1={330,470,150,30};
+       buttonrec2={330,530,150,30};
+       buttonrec3={330,590,150,30};
+       button1pressed=false;
+       button2pressed=false;
+       button3pressed=false;
+   }
+  void DrawStartingMenu(){
+      DrawRectangleLinesEx(border,7,DARKGREEN);
+      DrawRectangleRec(buttonrec1,button1pressed?DARKBLUE:DARKGREEN);
+      DrawRectangleLinesEx(buttonrec1,2,GREEN);
+      DrawText("PLAY GAME",350,475,20,textColor);
+      DrawRectangleRec(buttonrec2,button2pressed?DARKBLUE:DARKGREEN);
+      DrawRectangleLinesEx(buttonrec2,2,GREEN);
+      DrawText("OPTIONS",360,535,20,textColor);
+      DrawRectangleRec(buttonrec3,button3pressed?DARKBLUE:DARKGREEN);
+      DrawRectangleLinesEx(buttonrec3,2,GREEN);
+      DrawText("QUIT",380,595,20,textColor);
+  }
+  void undoPressed(){
+    button1pressed=false;
+  }
+  bool isPressed1(){
+    if(CheckCollisionPointRec(GetMousePosition(),buttonrec1)){
+      button1pressed=true;
+       if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+        return true;
+       }      
+    }  
+    else{
+       button1pressed=false;
+    }
+    return false; 
+  }
+   bool isPressed2(){
+    if(CheckCollisionPointRec(GetMousePosition(),buttonrec2)){
+      button2pressed=true;
+       if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+        return true;
+       }      
+    }  
+    else{
+       button2pressed=false;
+    }
+    return false; 
+  }
+   bool isPressed3(){
+    if(CheckCollisionPointRec(GetMousePosition(),buttonrec3)){
+      button3pressed=true;
+       if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+        return true;
+       }      
+    }  
+    else{
+       button3pressed=false;
+    }
+    return false; 
+  }
+  void transition(){
+    isPressed1();
+    isPressed2();
+    isPressed3();
+  }
+};
+class UI :public StatusBar,public StartingMenu{
   // Constructor makes all the necessary UI elements
   GuiPhoneWindowState phoneWindowState;
   GuiCameraToggleState cameraToggleState;
@@ -59,7 +222,7 @@ public:
 
   Rectangle rect;
   int capture = 0;
-  UI() {
+  UI(){
     phoneWindowState = InitGuiPhoneWindow();
     cameraToggleState = InitGuiCameraToggle();
     rect = {0, 0, 160, 120};
@@ -82,7 +245,7 @@ public:
     phoneWindowState.PhoneBox001Active = cameraToggleState.Toggle000Active;
     GuiPhoneWindow(&phoneWindowState);
     cameraToggleState.Toggle000Active = phoneWindowState.PhoneBox001Active;
-    DrawStausBar(alive_count,health_count,sentiment_total,total_count);
+    DrawStatusBar(alive_count,health_count,sentiment_total,total_count);
     // DrawTexture(screenShotTexture, 0, 0, WHITE);
   }
   void HandleCapture() {
