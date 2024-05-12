@@ -16,7 +16,6 @@ using namespace std;
 #define GUI_CAMERATOGGLE_IMPLEMENTATION
 //#define GUI_MENU_IMPLEMENTATION 
 #include "raygui.h"
-//#include "gui_menu.h"
 #include "gui_cameraToggle.h"
 #include "gui_phoneWindow.h"
 class StatusBar{
@@ -59,19 +58,19 @@ class StatusBar{
      DrawRectangleLines(573,13,140,30,BLACK);
      DrawText("Sentiment  ",586,19,18,WHITE);
      DrawText(formatted_sentiment_count.c_str(),673,19,18,WHITE);
-     DrawRectangleRec(pauseButton,pauseButtonpressed?LIGHTGRAY:DARKGREEN);
+     DrawRectangleRec(pauseButton,GREEN);
     DrawTextureEx(pauseIcon,(Vector2){(float)755,(float)0},0,0.09,WHITE);
   }
   bool ispressedPauseIcon(){
     if(CheckCollisionPointRec(GetMousePosition(),pauseButton)){
+      pauseButtonpressed=true;
       if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
-        pauseButtonpressed=true;
         return true;
       }
+      } 
       else{
         pauseButtonpressed=false;
       }
-      } 
       return false;
     }
   void ShowStatus(int alive_count,int health_count,float sentiment_total,int total_count){
@@ -211,7 +210,8 @@ class UI :public StatusBar,public StartingMenu{
   GuiCameraToggleState cameraToggleState;
   Image screenShot;
   Texture2D screenShotTexture;
-
+  Rectangle crossButton;
+  bool crossButtonpressed;
 public:
   vector<string> DropdownNoun1;
   vector<string> DropdownNoun2;
@@ -219,10 +219,12 @@ public:
                                             "hugs", "treat"};
   const set<string> neg = {"attack", "slap", "galnotch"};
   const set<string> pos = {"hugs", "treat"};
-
+ 
   Rectangle rect;
   int capture = 0;
   UI(){
+    crossButton={560,270,30,30};
+    crossButtonpressed=false;
     phoneWindowState = InitGuiPhoneWindow();
     cameraToggleState = InitGuiCameraToggle();
     rect = {0, 0, 160, 120};
@@ -284,7 +286,32 @@ public:
     // DrawRectangleLinesEx(rect, 3, BLACK);
     capture = 1;
   }
-
+  void DrawAudioBox(){
+    Color lightBlue={55, 136, 255, 255};
+    Color darkRed={139, 0, 0, 255};
+    DrawRectangle(240,270,350,170,SKYBLUE);
+    DrawRectangleLines(240,270,350,170,WHITE);
+    DrawRectangle(240,270,350,30,lightBlue);
+    DrawRectangleLines(240,270,350,30,WHITE);
+    DrawText("Audio Settings",250,272,20,WHITE);
+    DrawRectangleRec(crossButton,crossButtonpressed?darkRed:RED);
+    Font font=LoadFont("../assets/open-sans/OpenSans-Bold.ttf");
+    Font music=LoadFont("../assets/open-sans/OpenSans-ExtraBold.ttf");
+    DrawTextEx(font,"X",{(float)567,(float)269},33,0,WHITE);
+    DrawTextEx(music,"MUSIC: ChaosCrazeTune",{(float)250,(float)315},35,0,BLACK);
+  }
+  bool isCrossButtonPressed(){
+    if(CheckCollisionPointRec(GetMousePosition(),crossButton)){
+      crossButtonpressed=true;
+      if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
+        return true;
+      }
+    }
+    else{
+      crossButtonpressed=false;
+    }
+    return false;
+  }
   void setCaption(vector<string> names) {
     string s = "";
     for (string x : names) {

@@ -1,8 +1,10 @@
 #include "headers/UI.h"
 #include "headers/collisions.h"
 #include "headers/ds.h"
+#define GUI_VOLUME_BAR_IMPLEMENTATION
 #define GUI_STATUSBAR_IMPLEMENTATION
 #include "headers/gui_statusBar.h"
+#include "headers/gui_volume_bar.h"
 #include "math.h"
 // Semtiment -ve -> MORE
 // Age Game SMALLE -> MORE
@@ -13,6 +15,7 @@
 #include <string>
  //#define RAYLIB_TILESON_IMPLEMENTATION
 // #include "raylib-tileson.h"
+
 #include <chrono>
 #include <random>
 #include <unistd.h> // For getpid()
@@ -395,9 +398,7 @@ public:
   void Draw() {
     NPC_Interactions::Draw();
     UI::Draw(getListsize()-deathCount,calculateHealth(),calculateSentiment(),getListsize());
-
   }
-  
   void Random_interactions() {
     vector<pair<NPC *, NPC *>> pairList = CheckCollisions();
     // cout << pairList.size() << endl;
@@ -508,6 +509,9 @@ int main() {
   logo=LoadTexture("../assets/Thing.png");
   Texture2D main;
   main=LoadTexture("../assets/mainscreen.png");
+
+  Texture2D optionwindow;
+  optionwindow=LoadTexture("../assets/optionScreen.png");
   NPC Boy("Boy", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
   NPC Girl("Girl", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
   NPC Old_Man("Old_man", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
@@ -521,10 +525,14 @@ int main() {
   Game.AddNPC(&Woman);
 
   // Map map = LoadTiled("../assets/TileMap/Final.json");
+
+  GuiVolumeBarState volumebarstate= InitGuiVolumeBar();
+
   GameState currentState=mainScreen;
   int stateC = 4;
   UI startingMenu;
   UI statusBar;
+  UI audiobox;
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     BeginDrawing();
@@ -546,11 +554,16 @@ int main() {
         currentState=quitGame;
       }
       break;
-      case quitGame:
-      CloseWindow();
+      case optionsMenu:
+      ClearBackground(DARKGREEN);
+      audiobox.DrawAudioBox();
+      GuiVolumeBar(&volumebarstate);
+      if(audiobox.isCrossButtonPressed()){
+        currentState=mainScreen;
+      }
       break;
       case GameScreen:
-      DrawTextureEx(map,Vector2{0.0,0.0},0,1.04,WHITE);
+      DrawTexture(map,10,10,WHITE);
       Game.Draw();
       Game.HandleCapture();
       Game.Update();
@@ -565,8 +578,11 @@ int main() {
         currentState=GameScreen;
       }
       if(statusBar.isExitPressed()){
-        currentState=quitGame;
+        currentState=mainScreen;
       }
+      break;
+      case quitGame:
+      CloseWindow();
       break;
     }
     EndDrawing();
