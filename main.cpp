@@ -1,6 +1,7 @@
 #include "headers/UI.h"
 #include "headers/collisions.h"
 #include "headers/ds.h"
+#include "headers/raygui.h"
 #define GUI_STATUSBAR_IMPLEMENTATION
 #include "headers/gui_statusBar.h"
 #include "math.h"
@@ -566,7 +567,8 @@ public:
 int Game::deathCount = 0;
 
 int main() {
-  InitWindow(width, height, "My first RAYLIB program!");
+  InitWindow(width, height, "ChaosCraze");
+  // GuiLoadStyle("../assets/entefe.rgs");
   SetTargetFPS(60);
   // Seed for random number
 
