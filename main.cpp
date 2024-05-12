@@ -535,6 +535,7 @@ int main() {
   UI audiobox;
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
+    Game.HandleCapture();
     BeginDrawing();
     ClearBackground(BLACK);
     switch(currentState){
@@ -565,7 +566,6 @@ int main() {
       case GameScreen:
       DrawTexture(map,10,10,WHITE);
       Game.Draw();
-      Game.HandleCapture();
       Game.Update();
       if(statusBar.ispressedPauseIcon()){
          currentState=PauseWindow;      
