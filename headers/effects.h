@@ -10,7 +10,7 @@ using namespace std;
 // 3. FrameCount
 // 4. FrameSpeed
 
-enum EffectType { Blood, Impact, Slash };
+enum EffectType { Blood, Impact, Slash, Crystal, Capture };
 
 class EffectMap {
 public:
@@ -20,6 +20,8 @@ public:
     effectMap[Blood] = LoadTexture("../assets/effects/BloodSheet.png");
     effectMap[Impact] = LoadTexture("../assets/effects/Impact.png");
     effectMap[Slash] = LoadTexture("../assets/effects/slash.png");
+    effectMap[Crystal] = LoadTexture("../assets/effects/Crystal.png");
+    effectMap[Capture] = LoadTexture("../assets/effects/Capture.png");
   }
 };
 
@@ -28,12 +30,13 @@ class Effect {
   int maxFrames;
   int FrameCount;
   int FrameSpeed;
-  Vector2 position;
+  bool Centered;
+  Vector2 *position;
   EffectType effect;
 
 public:
-  Effect(EffectType effect, Vector2 position, int speed)
-      : effect(effect), position(position) {
+  Effect(EffectType effect, Vector2 *position, int speed, bool Centered = false)
+      : effect(effect), position(position), Centered(Centered) {
     currentSpriteFrame = 0;
     maxFrames = EffectMap::effectMap[effect].width /
                 EffectMap::effectMap[effect].height;
@@ -48,9 +51,17 @@ public:
     FrameCount++;
   }
   bool Draw() {
-    DrawTextureRec(EffectMap::effectMap[effect],
-                   Rectangle{(float)currentSpriteFrame * 32, 0, 32, 32},
-                   position, WHITE);
+    Vector2 pos = *position;
+    float height = EffectMap::effectMap[effect].height;
+    if (Centered) {
+      pos.x -= height / 2;
+      pos.y -= height / 2;
+    }
+
+    DrawTextureRec(
+        EffectMap::effectMap[effect],
+        Rectangle{(float)currentSpriteFrame * height, 0, height, height}, pos,
+        WHITE);
     // If you can no longer draw the effect return true
     return currentSpriteFrame == maxFrames - 1;
   }
@@ -61,8 +72,8 @@ class EffectManager {
                                   // avoid conflicts with the STL list
 
 public:
-  static void addEffect(EffectType effect, Vector2 position, int speed) {
-    Effect e(effect, position, speed);
+  static void addEffect(EffectType effect, Vector2 *position, int speed, bool Capture = false) {
+    Effect e(effect, position, speed, Capture);
     effectList.push_back(
         e); // Using push_back() to add the effect to the end of the list
   }

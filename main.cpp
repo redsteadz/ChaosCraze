@@ -319,6 +319,7 @@ public:
   }
   Rectangle GetRect() { return npcRectangle; }
   Vector2 GetPos() { return npcPosition; }
+  Vector2* GetPosPointer() { return &npcPosition; }
   void setColliding(bool b) { isColliding = b; }
   bool getColliding() { return isColliding; }
 
@@ -422,6 +423,7 @@ public:
     for (NPC *npc : npcList) {
       if (npc->getName() == target || npc->getOccupation() == target) {
         npc->setSentiment(val);
+        EffectManager::addEffect(Crystal , npc->GetPosPointer() , 10);
       }
     }
   }
@@ -470,9 +472,9 @@ public:
             (o.second->getSentiment() >= -1 && o.second->getSentiment() <= 1)) {
           if (o.first->getSentiment() > o.second->getSentiment() ||
               o.first->getSentiment() == o.second->getSentiment()) {
-            EffectManager::addEffect(Slash, o.second->GetPos(), 10);
+            EffectManager::addEffect(Slash, o.second->GetPosPointer(), 10);
             o.second->setState(attack);
-            EffectManager::addEffect(Blood, o.first->GetPos(), 30);
+            EffectManager::addEffect(Blood, o.first->GetPosPointer(), 30);
             o.first->setState(hurt);
             if (o.first->getSentiment() > 0)
               o.first->setHealth(15);
@@ -481,7 +483,9 @@ public:
             else
               o.first->setHealth(10);
           } else if (o.first->getSentiment() < o.second->getSentiment()) {
+            EffectManager::addEffect(Slash, o.first->GetPosPointer(), 10);
             o.first->setState(attack);
+            EffectManager::addEffect(Blood, o.second->GetPosPointer(), 10);
             o.second->setState(hurt);
             if (o.second->getSentiment() > 0)
               o.second->setHealth(15);

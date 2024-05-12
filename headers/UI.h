@@ -1,3 +1,4 @@
+#include "effects.h"
 #ifndef UI_H
 #define UI_H
 #include <iostream>
@@ -13,7 +14,6 @@ using namespace std;
 #define GUI_PHONEWINDOW_IMPLEMENTATION
 #define GUI_CAMERATOGGLE_IMPLEMENTATION
 #include "raygui.h"
-
 #include "gui_cameraToggle.h"
 #include "gui_phoneWindow.h"
 
@@ -23,6 +23,13 @@ class UI {
   GuiCameraToggleState cameraToggleState;
   Image screenShot;
   Texture2D screenShotTexture;
+  Texture2D captureTexture;
+  Rectangle captureRect;
+  int currentFrame;
+  int FrameCount;
+  int FrameSpeed;
+  Vector2 mousePos;
+  int maxFrame;
   Camera2D *camera;
 public:
   vector<string> DropdownNoun1;
@@ -37,7 +44,13 @@ public:
   UI() {
     phoneWindowState = InitGuiPhoneWindow();
     cameraToggleState = InitGuiCameraToggle();
-    rect = {0, 0, 160, 120};
+    rect = {0, 0, 200, 120};
+    currentFrame = 0;
+    FrameCount = 0;
+    FrameSpeed = 5;
+    captureRect = {0, 0, 200, 120};
+    captureTexture = LoadTexture("../assets/effects/Spritesheet_UI_Flat_Select_01.png");
+    maxFrame = 4;
     ResetCapture();
   }
   void setCamera(Camera2D *c) { camera = c; }
@@ -47,13 +60,21 @@ public:
   int ActiveDropdownConnector() {
     return phoneWindowState.DropdownConnectorActive;
   }
+  void Animate(){
+    if (FrameCount >= (60 / FrameSpeed)) {
+      currentFrame = (currentFrame + 1) % maxFrame;
+      captureRect.x = currentFrame * 200;
+      FrameCount = 0;
+    }
+    FrameCount++;
+  }
   void Draw() {
     if (capture == 1) {
-      DrawRectangleLinesEx(rect, 3, BLACK);
+        DrawTexturePro(captureTexture,  captureRect, rect , {0,0}, 0, WHITE);    
     } else if (capture == 2) {
-      DrawRectangleRec(rect, RED);
-      // Handle capture !
+      Vector2 *pos = new Vector2{mousePos.x, mousePos.y};
     }
+    Animate();
     GuiCameraToggle(&cameraToggleState);
     phoneWindowState.PhoneBox001Active = cameraToggleState.Toggle000Active;
     // phoneWindowState.anchor02 = GetScreenToWorld2D(phoneWindowState.anchor02 , *camera);
@@ -66,7 +87,7 @@ public:
   void HandleCapture() {
     // Make a Rectangle around the cursor
     // Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), *camera);
-    Vector2 mousePos = GetMousePosition();
+    mousePos = GetMousePosition();
     // cout << mousePos.x << " " << mousePos.y << endl;
     capture = 0;
     // Check if in bounds of toggle button OR it is toggled on AND in Phone
@@ -96,6 +117,7 @@ public:
       }
       // DrawRectangleRec(rect, RED);
       capture = 2;
+      EffectManager::addEffect(Capture , &mousePos, 10, true);
       return;
     }
     // DrawRectangleLinesEx(rect, 3, BLACK);
