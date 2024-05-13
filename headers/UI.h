@@ -172,6 +172,18 @@ public:
     }
     return false;
   }
+    void DrawAudioBox(){
+    Color lightBlue={55, 136, 255, 255};
+    Color darkRed={139, 0, 0, 255};
+    //DrawRectangle(240,270,350,170,SKYBLUE);
+   // DrawRectangleLines(240,270,350,170,WHITE);
+   DrawRectangleRec(OKButton,OKButtonpressed?DARKBLUE:SKYBLUE);
+    DrawRectangleLines(352,410,90,37,WHITE);
+   // DrawText("Audio Settings",250,272,20,WHITE);
+   // DrawRectangleRec(crossButton,crossButtonpressed?darkRed:RED)
+    DrawTextEx(music,"OK",{(float)372,(float)410},40,0,WHITE);
+  }
+
   bool isPressed2() {
     if (CheckCollisionPointRec(GetMousePosition(), buttonrec2)) {
       button2pressed = true;
