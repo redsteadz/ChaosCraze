@@ -126,14 +126,13 @@ public:
       return {};
     }
     vector<Point<T>> found;
-    for (Point point : points) {
+    for (auto point : points) {
       if (CheckCollisionPointRec(point.v, area)) {
         // cout << "Query Data" << point.v.x << " " << point.v.y << endl;
         found.push_back(point);
       }
-    }
-
-    if (divided) {
+    };
+    if(divided) {
       vector<Point<T>> nw_found = nw->query(area);
       vector<Point<T>> ne_found = ne->query(area);
       vector<Point<T>> sw_found = sw->query(area);

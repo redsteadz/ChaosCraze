@@ -4,8 +4,10 @@
 #include "headers/effects.h"
 #include "headers/sound.h"
 #include "headers/raygui.h"
+#define GUI_VOLUME_BAR_IMPLEMENTATION
 #define GUI_STATUSBAR_IMPLEMENTATION
 #include "headers/gui_statusBar.h"
+#include "headers/gui_volume_bar.h"
 #include "math.h"
 // Semtiment -ve -> MORE
 // Age Game SMALLE -> MORE
@@ -15,8 +17,9 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <string>
-#define RAYLIB_TILESON_IMPLEMENTATION
-#include "raylib-tileson.h"
+ //#define RAYLIB_TILESON_IMPLEMENTATION
+// #include "raylib-tileson.h"
+
 #include <chrono>
 #include <random>
 #include <unistd.h> // For getpid()
@@ -336,7 +339,6 @@ private:
 class NPC_Interactions {
   vector<NPC *> npcList;
   QuadTree<NPC> *Q;
-
 public:
   bool run = true;
   void AddNPC(NPC *npc) { npcList.push_back(npc); }
@@ -364,7 +366,21 @@ public:
     }
     return collisions;
   }
-
+  float calculateSentiment(){
+    float sentiment_total=0;
+    for(int i=0;i<npcList.size();i++){
+      sentiment_total+=npcList[i]->getSentiment();
+    }
+    cout<<"SENTIMNET"<<sentiment_total<<endl;
+    return sentiment_total;
+  }
+  int calculateHealth(){
+    int health_total=0;
+    for(int i=0;i<npcList.size();i++){
+      health_total+=npcList[i]->getHealth();
+    }
+    return health_total;
+  }
   vector<Point<NPC>> QueryRec(Rectangle r) { return Q->query(r); }
 
   double calculateProbability(double s1, double s2, double g, double o) {
@@ -449,11 +465,12 @@ public:
     }
     delete Q;
   }
+  int getListsize(){
+    return npcList.size();
+  }
 };
 
 class Game : public NPC_Interactions, public UI {
-  static int deathCount;
-
 public:
   Game() {}
   void DrawUI() { UI::Draw(); }
@@ -543,6 +560,7 @@ public:
       UI::capture = 0;
     }
     Random_interactions();
+
     NPC_Interactions::Update();
   }
 };
@@ -553,6 +571,13 @@ list<Effect> EffectManager::effectListUI;
 map<EffectType, Texture2D> EffectMap::effectMap;
 map<SoundType, Sound> SoundMap::soundMap;
 
+enum GameState{
+  mainScreen,
+  GameScreen,
+  optionsMenu,
+  quitGame,
+  PauseWindow
+};
 int main() {
   InitWindow(width, height, "ChaosCraze");
   InitAudioDevice();
@@ -569,14 +594,22 @@ int main() {
   Game Game;
 
   CameraController c;
+  Texture2D map;
+  map=LoadTexture("../assets/TileMap/PNG/Map2.png");
   CollisionMapper::LoadCollisionMap();
+  Texture2D logo;
+  logo=LoadTexture("../assets/Thing.png");
+  Texture2D main;
+  main=LoadTexture("../assets/mainscreen.png");
 
-  NPC Boy("Boy", {600, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
-  NPC Girl("Girl", {700, 200}, 2, STATE::walk, 0, 0, "Villagers");
-  NPC Old_Man("Old_man", {500, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
-  NPC Man("Man", {700, 200}, 2, STATE::walk, 0, 0, "Villagers");
-  NPC Woman("Woman", {600, 200}, 2, STATE::walk, 0, 0, "Villagers");
-
+  Texture2D optionwindow;
+  optionwindow=LoadTexture("../assets/optionScreen.png");
+  NPC Boy("Boy", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
+  NPC Girl("Girl", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Old_Man("Old_man", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
+  NPC Man("Man", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Woman("Woman", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  
   Game.AddNPC(&Boy);
   Game.AddNPC(&Girl);
   Game.AddNPC(&Old_Man);
@@ -604,9 +637,62 @@ int main() {
     EffectManager::updateEffectsUI();
     EndDrawing();
     Game.HandleCapture();
-    Game.Update();
+    BeginDrawing();
+    ClearBackground(BLACK);
+    switch(currentState){
+      case mainScreen:
+      DrawTexture(main,0,0,WHITE);
+      startingMenu.DrawStartingMenu();
+      DrawTextureEx(logo,{145,10},0.0f,1,WHITE);
+      startingMenu.transition();
+      if(startingMenu.isPressed1())
+      {
+        currentState=GameScreen;      
+      }
+      if(startingMenu.isPressed2()){
+        currentState=optionsMenu;
+      }
+      if(startingMenu.isPressed3()){
+        currentState=quitGame;
+      }
+      break;
+      case optionsMenu:
+      ClearBackground(DARKGREEN);
+      audiobox.DrawAudioBox();
+      GuiVolumeBar(&volumebarstate);
+      if(audiobox.isCrossButtonPressed()){
+        currentState=mainScreen;
+      }
+      break;
+      case GameScreen:
+      DrawTexture(map,10,10,WHITE);
+      Game.Draw();
+      Game.Update();
+      if(statusBar.ispressedPauseIcon()){
+         currentState=PauseWindow;      
+      }
+      break;
+      case PauseWindow:
+       DrawTexture(main,0,0,WHITE);
+      statusBar.ShowStatus(Game.getListsize()-Game.deathCount,Game.calculateHealth(),Game.calculateSentiment(),Game.getListsize());
+      if(statusBar.isResumePressed()){
+        currentState=GameScreen;
+      }
+      if(statusBar.isExitPressed()){
+        currentState=mainScreen;
+      }
+      break;
+      case quitGame:
+      CloseWindow();
+      break;
+    }
+    EndDrawing();
+    // DrawTiled(map, 0, 0, WHITE);
+    // CollisionMapper::DrawCollisionMap();
   }
-  UnloadMap(map);
+  UnloadTexture(logo);
+  UnloadTexture(map);
+  // UnloadMap(map);
   CloseWindow();
   return 0;
 }
