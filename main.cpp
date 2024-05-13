@@ -519,12 +519,26 @@ int main() {
   NPC Old_Man("Old_man", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
   NPC Man("Man", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
   NPC Woman("Woman", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
-  
+  NPC Old_Woman("Old_Woman", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Bob("Bob", {200, 200}, 2, STATE::walk, 0, 0, "Greenzone");
+  NPC Huffy("Huffy", {300, 200}, 2, STATE::walk, 0, 0, "Greenzone");
+  NPC Snuffy("Snuffy", {200, 200}, 2, STATE::walk, 0, 0, "Greenzone");
+  NPC GraveRobber("GraveRobber", {100, 200}, 2, STATE::walk, 0, 0, "MainCharacters");
+  NPC SteamMan("SteamMan", {100, 200}, 2, STATE::walk, 0, 0, "MainCharacters");
+  NPC Woodcutter("Woodcutter", {100, 200}, 2, STATE::walk, 0, 0, "MainCharacters");
+  Game.AddNPC(&Old_Woman);
+  Game.AddNPC(&Bob);
+  Game.AddNPC(&Huffy);
+  Game.AddNPC(&Snuffy);
+  Game.AddNPC(&GraveRobber);
+  Game.AddNPC(&SteamMan);
+  Game.AddNPC(&Woodcutter);
   Game.AddNPC(&Boy);
   Game.AddNPC(&Girl);
   Game.AddNPC(&Old_Man);
   Game.AddNPC(&Man);
   Game.AddNPC(&Woman);
+
 
   // Map map = LoadTiled("../assets/TileMap/Final.json");
 
