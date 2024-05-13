@@ -210,8 +210,9 @@ class UI :public StatusBar,public StartingMenu{
   GuiCameraToggleState cameraToggleState;
   Image screenShot;
   Texture2D screenShotTexture;
-  Rectangle crossButton;
-  bool crossButtonpressed;
+  Rectangle OKButton;
+  bool OKButtonpressed;
+  Font music;
 public:
   vector<string> DropdownNoun1;
   vector<string> DropdownNoun2;
@@ -223,8 +224,9 @@ public:
   Rectangle rect;
   int capture = 0;
   UI(){
-    crossButton={560,270,30,30};
-    crossButtonpressed=false;
+    music=LoadFont("../assets/open-sans/OpenSans-ExtraBold.ttf");
+    OKButton={352,410,90,37};
+    OKButtonpressed=false;
     phoneWindowState = InitGuiPhoneWindow();
     cameraToggleState = InitGuiCameraToggle();
     rect = {0, 0, 160, 120};
@@ -289,26 +291,23 @@ public:
   void DrawAudioBox(){
     Color lightBlue={55, 136, 255, 255};
     Color darkRed={139, 0, 0, 255};
-    DrawRectangle(240,270,350,170,SKYBLUE);
-    DrawRectangleLines(240,270,350,170,WHITE);
-    DrawRectangle(240,270,350,30,lightBlue);
-    DrawRectangleLines(240,270,350,30,WHITE);
-    DrawText("Audio Settings",250,272,20,WHITE);
-    DrawRectangleRec(crossButton,crossButtonpressed?darkRed:RED);
-    Font font=LoadFont("../assets/open-sans/OpenSans-Bold.ttf");
-    Font music=LoadFont("../assets/open-sans/OpenSans-ExtraBold.ttf");
-    DrawTextEx(font,"X",{(float)567,(float)269},33,0,WHITE);
-    DrawTextEx(music,"MUSIC: ChaosCrazeTune",{(float)250,(float)315},35,0,BLACK);
+    //DrawRectangle(240,270,350,170,SKYBLUE);
+   // DrawRectangleLines(240,270,350,170,WHITE);
+   DrawRectangleRec(OKButton,OKButtonpressed?DARKBLUE:SKYBLUE);
+    DrawRectangleLines(352,410,90,37,WHITE);
+   // DrawText("Audio Settings",250,272,20,WHITE);
+   // DrawRectangleRec(crossButton,crossButtonpressed?darkRed:RED)
+    DrawTextEx(music,"OK",{(float)372,(float)410},40,0,WHITE);
   }
-  bool isCrossButtonPressed(){
-    if(CheckCollisionPointRec(GetMousePosition(),crossButton)){
-      crossButtonpressed=true;
+  bool isOkButtonPressed(){
+    if(CheckCollisionPointRec(GetMousePosition(),OKButton)){
+       OKButtonpressed=true;
       if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
         return true;
       }
     }
     else{
-      crossButtonpressed=false;
+      OKButtonpressed=false;
     }
     return false;
   }

@@ -109,7 +109,7 @@ GuiVolumeBarState InitGuiVolumeBar(void)
      state.Spinner002Value=&state.value;
      state.Spinner002Text="";
     // Init controls rectangles
-    state.layoutRecs[0] = (Rectangle){ state.anchor01.x + -140, state.anchor01.y + -130, 300, 40 };// Spinner: Spinner002
+    state.layoutRecs[0] = (Rectangle){ state.anchor01.x + -155, state.anchor01.y + -138, 310, 40 };// Spinner: Spinner002
 
     // Custom variables initialization
 

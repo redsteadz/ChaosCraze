@@ -503,15 +503,17 @@ int main() {
   // NPC_Interactions Game;
   Game Game;
   Texture2D map;
-  map=LoadTexture("../assets/TileMap/PNG/Map2.png");
+  map=LoadTexture("../assets/GameMap.png");
   CollisionMapper::LoadCollisionMap();
   Texture2D logo;
   logo=LoadTexture("../assets/Thing.png");
   Texture2D main;
-  main=LoadTexture("../assets/mainscreen.png");
-
+  main=LoadTexture("../assets/MainMap.png");
+  
   Texture2D optionwindow;
   optionwindow=LoadTexture("../assets/optionScreen.png");
+  Texture2D optionScreenBg;
+  optionScreenBg=LoadTexture("../assets/optionScreenBg.png");
   NPC Boy("Boy", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
   NPC Girl("Girl", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
   NPC Old_Man("Old_man", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
@@ -535,6 +537,7 @@ int main() {
   UI audiobox;
   STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
+    Game.HandleCapture();
     BeginDrawing();
     ClearBackground(BLACK);
     switch(currentState){
@@ -555,17 +558,17 @@ int main() {
       }
       break;
       case optionsMenu:
-      ClearBackground(DARKGREEN);
+      DrawTexture(optionScreenBg,0,0,WHITE);
+      DrawTexture(optionwindow,222,255,WHITE);
       audiobox.DrawAudioBox();
       GuiVolumeBar(&volumebarstate);
-      if(audiobox.isCrossButtonPressed()){
+      if(audiobox.isOkButtonPressed()){
         currentState=mainScreen;
       }
       break;
       case GameScreen:
       DrawTexture(map,10,10,WHITE);
       Game.Draw();
-      Game.HandleCapture();
       Game.Update();
       if(statusBar.ispressedPauseIcon()){
          currentState=PauseWindow;      
@@ -589,6 +592,9 @@ int main() {
     // DrawTiled(map, 0, 0, WHITE);
     // CollisionMapper::DrawCollisionMap();
   }
+  UnloadTexture(main);
+  UnloadTexture(optionScreenBg);
+  UnloadTexture(optionwindow);
   UnloadTexture(logo);
   UnloadTexture(map);
   // UnloadMap(map);
