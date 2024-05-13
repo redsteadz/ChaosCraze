@@ -471,9 +471,10 @@ public:
 };
 
 class Game : public NPC_Interactions, public UI {
+  static int death_count;
 public:
   Game() {}
-  void DrawUI() { UI::Draw(); }
+  void DrawUI() { UI::Draw(getListsize()-death_count,calculateHealth(),calculateSentiment(),getListsize());}
   void DrawNPC() { NPC_Interactions::Draw(); }
   void Draw() {
     DrawNPC();
@@ -520,10 +521,10 @@ public:
         }
         if (o.first->getHealth() == 0) {
           o.first->setState(death);
-          deathCount++;
+          death_count++;
         } else if (o.second->getHealth() == 0) {
           o.second->setState(death);
-          deathCount++;
+          death_count++;
         }
       }
     }
@@ -565,7 +566,7 @@ public:
   }
 };
 
-int Game::deathCount = 0;
+int Game::death_count = 0;
 list<Effect> EffectManager::effectList;
 list<Effect> EffectManager::effectListUI;
 map<EffectType, Texture2D> EffectMap::effectMap;
@@ -592,7 +593,6 @@ int main() {
   //  age, string occupation)
   // NPC_Interactions Game;
   Game Game;
-
   CameraController c;
   Texture2D map;
   map=LoadTexture("../assets/TileMap/PNG/Map2.png");
@@ -601,7 +601,6 @@ int main() {
   logo=LoadTexture("../assets/Thing.png");
   Texture2D main;
   main=LoadTexture("../assets/mainscreen.png");
-
   Texture2D optionwindow;
   optionwindow=LoadTexture("../assets/optionScreen.png");
   NPC Boy("Boy", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
@@ -610,6 +609,8 @@ int main() {
   NPC Man("Man", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
   NPC Woman("Woman", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
   
+  GameState currentState = mainScreen;
+
   Game.AddNPC(&Boy);
   Game.AddNPC(&Girl);
   Game.AddNPC(&Old_Man);
@@ -618,7 +619,6 @@ int main() {
   Music music = LoadMusicStream("../assets/sound/CLassic.mp3");
   SetMusicVolume(music, 0.7);
   PlayMusicStream(music);
-  Map map = LoadTiled("../assets/TileMap/Final.json");
   // int stateC = 4;
   // STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
@@ -627,7 +627,6 @@ int main() {
     BeginDrawing();
     ClearBackground(WHITE);
     c.BeginCamera();
-    DrawTiled(map, 0, 0, WHITE);
     Game.DrawNPC();
     // TODO: updateEffectUI and World 
     EffectManager::updateEffects();
@@ -642,17 +641,17 @@ int main() {
     switch(currentState){
       case mainScreen:
       DrawTexture(main,0,0,WHITE);
-      startingMenu.DrawStartingMenu();
+      Game.DrawStartingMenu();
       DrawTextureEx(logo,{145,10},0.0f,1,WHITE);
-      startingMenu.transition();
-      if(startingMenu.isPressed1())
+      Game.transition();
+      if(Game.isPressed1())
       {
         currentState=GameScreen;      
       }
-      if(startingMenu.isPressed2()){
+      if(Game.isPressed2()){
         currentState=optionsMenu;
       }
-      if(startingMenu.isPressed3()){
+      if(Game.isPressed3()){
         currentState=quitGame;
       }
       break;
