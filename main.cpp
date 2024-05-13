@@ -1,6 +1,8 @@
 #include "headers/UI.h"
 #include "headers/collisions.h"
 #include "headers/ds.h"
+#include "headers/effects.h"
+#include "headers/sound.h"
 #include "headers/raygui.h"
 #define GUI_STATUSBAR_IMPLEMENTATION
 #include "headers/gui_statusBar.h"
@@ -53,22 +55,12 @@ public:
   }
 
   void ZoomControl() {
-    // Zoom based on mouse wheel
     float wheel = GetMouseWheelMove();
     if (wheel != 0) {
       Vector2 mouseWorldPos = GetScreenToWorld2D(GetMousePosition(), camera);
-
-      // Top left Corner of the screen
-
-      // Set the offset to where the mouse is
       camera.offset = GetMousePosition();
-      // Set the target to match, so that the camera maps the world space point
-      // under the cursor to the screen space point under the cursor at any zoom
       camera.target = mouseWorldPos;
-
-      // Zoom increment
       const float zoomIncrement = 0.25f;
-
       camera.zoom += (wheel * zoomIncrement);
       if (camera.zoom < zoomIncrement)
         camera.zoom = zoomIncrement;
@@ -102,14 +94,6 @@ public:
     if (BottomRight.y > 800) {
       camera.offset.y -= 800 - BottomRight.y;
     }
-
-    // If the camera is out of bounds, adjust its position
-    // if (outOfBounds) {
-    //   camera.target = GetScreenToWorld2D(
-    //       Vector2{800 / 2, 800 / 2}, camera);
-    // }
-
-    this->camera = camera;
   }
 
   // Control that Camera Object the map
@@ -117,7 +101,6 @@ public:
 };
 
 class NPC_Characteristics {
-public:
   STATE state;
   float sentiment;
   int age;
@@ -125,6 +108,7 @@ public:
   string name;
   int health;
 
+public:
   NPC_Characteristics(STATE state, float sentiment, int age, string occupation,
                       string name) {
     this->state = idle;
@@ -336,6 +320,7 @@ public:
   }
   Rectangle GetRect() { return npcRectangle; }
   Vector2 GetPos() { return npcPosition; }
+  Vector2* GetPosPointer() { return &npcPosition; }
   void setColliding(bool b) { isColliding = b; }
   bool getColliding() { return isColliding; }
 
@@ -416,17 +401,17 @@ public:
   }
 
   bool ActionProbablity(NPC *npc1, NPC *npc2) {
-    int g = abs(npc1->age - npc2->age);
+    int g = abs(npc1->getAge() - npc2->getAge());
     int o;
-    if (npc1->occupation != npc2->occupation) {
+    if (npc1->getOccupation() != npc2->getOccupation()) {
       o = 1;
     } else {
       o = 0;
     }
 
-    float y =
-        calculateProbability(npc1->sentiment, npc2->sentiment, (g + 3), o) /
-        30.0;
+    float y = calculateProbability(npc1->getSentiment(), npc2->getSentiment(),
+                                   (g + 3), o) /
+              30.0;
     bool val = probabilityBasedFunction(y);
     // cout << y << " " << val << endl;
     if (val) {
@@ -438,7 +423,9 @@ public:
   void ChangeSentimentVal(string target, int val) {
     for (NPC *npc : npcList) {
       if (npc->getName() == target || npc->getOccupation() == target) {
+        cout << "-----------------" << npc->getName() << endl;
         npc->setSentiment(val);
+        EffectManager::addEffect(Crystal , npc->GetPosPointer() , 10);
       }
     }
   }
@@ -469,12 +456,8 @@ class Game : public NPC_Interactions, public UI {
 
 public:
   Game() {}
-  void DrawUI(){
-    UI::Draw();
-  }
-  void DrawNPC(){
-    NPC_Interactions::Draw();
-  }
+  void DrawUI() { UI::Draw(); }
+  void DrawNPC() { NPC_Interactions::Draw(); }
   void Draw() {
     DrawNPC();
     DrawUI();
@@ -484,9 +467,6 @@ public:
     // cout << pairList.size() << endl;
     for (auto o : pairList) {
       bool stuff = ActionProbablity(o.first, o.second);
-      // cout << stuff << " " << o.first->getName() << " " <<
-      // o.second->getName()
-      // << endl;
       if (stuff && o.first->getState() != death &&
           o.first->getState() != attack && o.second->getState() != death &&
           o.second->getState() != attack) {
@@ -494,7 +474,11 @@ public:
             (o.second->getSentiment() >= -1 && o.second->getSentiment() <= 1)) {
           if (o.first->getSentiment() > o.second->getSentiment() ||
               o.first->getSentiment() == o.second->getSentiment()) {
+            EffectManager::addEffect(Slash, o.second->GetPosPointer(), 10);
+            PlaySound(SoundMap::soundMap[Attack]);
             o.second->setState(attack);
+            EffectManager::addEffect(Blood, o.first->GetPosPointer(), 30);
+            PlaySound(SoundMap::soundMap[Hit]);
             o.first->setState(hurt);
             if (o.first->getSentiment() > 0)
               o.first->setHealth(15);
@@ -503,7 +487,11 @@ public:
             else
               o.first->setHealth(10);
           } else if (o.first->getSentiment() < o.second->getSentiment()) {
+            EffectManager::addEffect(Slash, o.first->GetPosPointer(), 10);
+            PlaySound(SoundMap::soundMap[Attack]);
             o.first->setState(attack);
+            EffectManager::addEffect(Blood, o.second->GetPosPointer(), 10);
+            PlaySound(SoundMap::soundMap[Hit]);
             o.second->setState(hurt);
             if (o.second->getSentiment() > 0)
               o.second->setHealth(15);
@@ -530,8 +518,6 @@ public:
       string target = DropdownNoun2[ActiveDropdownNoun2()];
       string adj = DropdownConnector[ActiveDropdownConnector()];
       if (neg.count(adj) > 0) {
-        // Decrease the sentiment
-        // Calculate the sentiment value for the targets
         ChangeSentimentVal(target, -1);
       } else {
         ChangeSentimentVal(target, 1);
@@ -539,19 +525,16 @@ public:
       UI::setPostedState(0);
     }
     if (capture == 2) {
-      // It has captured some shit, Grab the npcs from rectangle
       Rectangle captured = rect;
-      // cout << captured.x << " " << captured.y << " " << captured.width << " "
-      // << captured.height << endl;
       vector<Point<NPC>> collided = QueryRec(captured);
-      vector<string> names;
+      unordered_set<string> names;
       for (Point<NPC> npc : collided) {
-        // Update the options in the caption
-        if (npc.data->state == attack || npc.data->state == hurt)
-          names.push_back(npc.data->getName());
-        // cout << npc.data->getName() << " ";
+        if (npc.data->getState() == attack || npc.data->getState() == hurt){
+          names.insert(npc.data->getName());
+          names.insert(npc.data->getOccupation());
+        }
       }
-      vector<string> defaultCaption = {"Take", "Caption"};
+      unordered_set<string> defaultCaption = {"Take", "Caption"};
       if (!names.empty())
         setCaption(names);
       else
@@ -565,10 +548,17 @@ public:
 };
 
 int Game::deathCount = 0;
+list<Effect> EffectManager::effectList;
+list<Effect> EffectManager::effectListUI;
+map<EffectType, Texture2D> EffectMap::effectMap;
+map<SoundType, Sound> SoundMap::soundMap;
 
 int main() {
   InitWindow(width, height, "ChaosCraze");
+  InitAudioDevice();
   // GuiLoadStyle("../assets/entefe.rgs");
+  EffectMap::Init();
+  SoundMap::Init();
   SetTargetFPS(60);
   // Seed for random number
 
@@ -581,31 +571,37 @@ int main() {
   CameraController c;
   CollisionMapper::LoadCollisionMap();
 
-  NPC Boy("Boy", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
-  NPC Girl("Girl", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
-  NPC Old_Man("Old_man", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
-  NPC Man("Man", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
-  NPC Woman("Woman", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Boy("Boy", {600, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
+  NPC Girl("Girl", {700, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Old_Man("Old_man", {500, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
+  NPC Man("Man", {700, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Woman("Woman", {600, 200}, 2, STATE::walk, 0, 0, "Villagers");
 
   Game.AddNPC(&Boy);
   Game.AddNPC(&Girl);
   Game.AddNPC(&Old_Man);
   Game.AddNPC(&Man);
   Game.AddNPC(&Woman);
-
+  Music music = LoadMusicStream("../assets/sound/CLassic.mp3");
+  SetMusicVolume(music, 0.7);
+  PlayMusicStream(music);
   Map map = LoadTiled("../assets/TileMap/Final.json");
   // int stateC = 4;
   // STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     c.Control();
+    UpdateMusicStream(music);
     BeginDrawing();
     ClearBackground(WHITE);
     c.BeginCamera();
     DrawTiled(map, 0, 0, WHITE);
     Game.DrawNPC();
+    // TODO: updateEffectUI and World 
+    EffectManager::updateEffects();
     // CollisionMapper::DrawCollisionMap();
     c.EndCamera();
     Game.DrawUI();
+    EffectManager::updateEffectsUI();
     EndDrawing();
     Game.HandleCapture();
     Game.Update();
