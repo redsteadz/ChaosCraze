@@ -226,8 +226,9 @@ class UI : public StatusBar, public StartingMenu {
   Vector2 mousePos;
   int maxFrame;
   Camera2D *camera;
-  Rectangle crossButton;
-  bool crossButtonpressed;
+  Rectangle OKButton;
+  bool OKButtonpressed;
+  Font music;
 
 public:
   vector<string> DropdownNoun1;
@@ -240,8 +241,6 @@ public:
   Rectangle rect;
   int capture = 0;
   UI() {
-    crossButton = {560, 270, 30, 30};
-    crossButtonpressed = false;
     phoneWindowState = InitGuiPhoneWindow();
     cameraToggleState = InitGuiCameraToggle();
     rect = {0, 0, 200, 120};
