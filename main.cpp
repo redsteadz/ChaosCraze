@@ -657,9 +657,9 @@ int main() {
       break;
       case optionsMenu:
       ClearBackground(DARKGREEN);
-      audiobox.DrawAudioBox();
+      Game.DrawAudioBox();
       GuiVolumeBar(&volumebarstate);
-      if(audiobox.isCrossButtonPressed()){
+      if(Game.isOk()){
         currentState=mainScreen;
       }
       break;
