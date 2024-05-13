@@ -172,17 +172,6 @@ public:
     }
     return false;
   }
-    void DrawAudioBox(){
-    Color lightBlue={55, 136, 255, 255};
-    Color darkRed={139, 0, 0, 255};
-    //DrawRectangle(240,270,350,170,SKYBLUE);
-   // DrawRectangleLines(240,270,350,170,WHITE);
-   DrawRectangleRec(OKButton,OKButtonpressed?DARKBLUE:SKYBLUE);
-    DrawRectangleLines(352,410,90,37,WHITE);
-   // DrawText("Audio Settings",250,272,20,WHITE);
-   // DrawRectangleRec(crossButton,crossButtonpressed?darkRed:RED)
-    DrawTextEx(music,"OK",{(float)372,(float)410},40,0,WHITE);
-  }
 
   bool isPressed2() {
     if (CheckCollisionPointRec(GetMousePosition(), buttonrec2)) {
@@ -241,6 +230,9 @@ public:
   Rectangle rect;
   int capture = 0;
   UI() {
+    music = LoadFont("../assets/open-sans/OpenSans-ExtraBold.ttf");
+    OKButton = {352, 410, 90, 37};
+    OKButtonpressed = false;
     phoneWindowState = InitGuiPhoneWindow();
     cameraToggleState = InitGuiCameraToggle();
     rect = {0, 0, 200, 120};
@@ -268,6 +260,18 @@ public:
     }
     FrameCount++;
   }
+  void DrawAudioBox() {
+    Color lightBlue = {55, 136, 255, 255};
+    Color darkRed = {139, 0, 0, 255};
+    // DrawRectangle(240,270,350,170,SKYBLUE);
+    // DrawRectangleLines(240,270,350,170,WHITE);
+    DrawRectangleRec(OKButton, OKButtonpressed ? DARKBLUE : SKYBLUE);
+    DrawRectangleLines(352, 410, 90, 37, WHITE);
+    // DrawText("Audio Settings",250,272,20,WHITE);
+    // DrawRectangleRec(crossButton,crossButtonpressed?darkRed:RED)
+    DrawTextEx(music, "OK", {(float)372, (float)410}, 40, 0, WHITE);
+  }
+
   void Draw(int alive_count, int health_count, float sentiment_total,
             int total_count) {
     if (capture == 1) {
