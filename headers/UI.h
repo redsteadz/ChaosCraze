@@ -252,6 +252,17 @@ public:
   int ActiveDropdownConnector() {
     return phoneWindowState.DropdownConnectorActive;
   }
+  bool isOkButtonPressed() {
+    if (CheckCollisionPointRec(GetMousePosition(), OKButton)) {
+      OKButtonpressed = true;
+      if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+        return true;
+      }
+    } else {
+      OKButtonpressed = false;
+    }
+    return false;
+  }
   void Animate() {
     if (FrameCount >= (60 / FrameSpeed)) {
       currentFrame = (currentFrame + 1) % maxFrame;

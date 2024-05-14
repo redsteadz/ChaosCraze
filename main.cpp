@@ -2,8 +2,9 @@
 #include "headers/collisions.h"
 #include "headers/ds.h"
 #include "headers/effects.h"
-#include "headers/sound.h"
+#define RAYGUI_IMPLEMENTATION
 #include "headers/raygui.h"
+#include "headers/sound.h"
 #define GUI_VOLUME_BAR_IMPLEMENTATION
 #define GUI_STATUSBAR_IMPLEMENTATION
 #include "headers/gui_statusBar.h"
@@ -17,7 +18,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <string>
- //#define RAYLIB_TILESON_IMPLEMENTATION
+// #define RAYLIB_TILESON_IMPLEMENTATION
 // #include "raylib-tileson.h"
 
 #include <chrono>
@@ -29,6 +30,7 @@ using namespace std;
 const int width = 800;
 const int height = 800;
 enum STATE { attack, walk, idle, hurt, death };
+bool lastplayer = 0;
 
 int CollisionMapper::collisionMap[25][25] = {0};
 
@@ -138,6 +140,7 @@ public:
     else
       this->health = 0;
   }
+
   int getHealth() { return this->health; }
 };
 
@@ -210,6 +213,7 @@ class NPC : public NPC_Physics, public NPC_Characteristics {
   int currentFrame = 0;
 
   GuiStatusBarState StatusState = InitGuiStatusBar();
+  map<STATE, Texture2D> textures;
 
 public:
   NPC(string _name, Vector2 pos, float spd, STATE state, float sentiment,
@@ -222,32 +226,33 @@ public:
     setState(state);
     npcPosition = pos;
     npcRectangle = {0, 0, (float)npcTexture.height, (float)npcTexture.height};
+    textures[walk] = LoadTexture((texturePath + "_walk.png").c_str());
+    textures[idle] = LoadTexture((texturePath + "_idle.png").c_str());
+    textures[attack] = LoadTexture((texturePath + "_attack.png").c_str());
+    textures[hurt] = LoadTexture((texturePath + "_hurt.png").c_str());
+    textures[death] = LoadTexture((texturePath + "_death.png").c_str());
+    npcTexture = textures[state];
   }
 
+  void controlbyPlayer() {
+    Vector2 mousepos = GetMousePosition();
+    Rectangle NPC_Rect = Rectangle{npcPosition.x, npcPosition.y, 48, 48};
+    if (CheckCollisionPointRec(mousepos, NPC_Rect)) {
+      if (!IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+        return;
+      npcPosition = mousepos;
+      npcPosition.x -= 24;
+      npcPosition.y -= 24;
+      if (CheckCollisionRecs(NPC_Rect, Rectangle{320, 320, 160, 160})) {
+        health = 0;
+        setState(death);
+        EffectManager::addEffect(Blood, GetPosPointer(), 10);
+      }
+    }
+  }
   void setState(STATE s) {
     state = s;
-    UnloadTexture(npcTexture);
-    switch (s) {
-    case walk:
-      npcTexture = LoadTexture((texturePath + "_walk.png").c_str());
-      break;
-    case idle:
-      npcTexture = LoadTexture((texturePath + "_idle.png").c_str());
-      break;
-    // One time
-    case attack:
-      npcTexture = LoadTexture((texturePath + "_attack.png").c_str());
-      break;
-    case hurt:
-      npcTexture = LoadTexture((texturePath + "_hurt.png").c_str());
-      break;
-    case death:
-      cout << " I CALL ONTO THE DEATH REAPER " << endl;
-      npcTexture = LoadTexture((texturePath + "_death.png").c_str());
-      break;
-    default:
-      break;
-    }
+    npcTexture = textures[state];
     if (state == walk)
       isMoving = true;
     else
@@ -288,8 +293,10 @@ public:
   }
   void Update() {
     Animate();
-    if (isMoving)
+    if (isMoving && !lastplayer)
       Random_walk();
+    else if (lastplayer)
+      controlbyPlayer();
   }
   void Animate() {
     int count = 0;
@@ -323,7 +330,7 @@ public:
   }
   Rectangle GetRect() { return npcRectangle; }
   Vector2 GetPos() { return npcPosition; }
-  Vector2* GetPosPointer() { return &npcPosition; }
+  Vector2 *GetPosPointer() { return &npcPosition; }
   void setColliding(bool b) { isColliding = b; }
   bool getColliding() { return isColliding; }
 
@@ -339,6 +346,7 @@ private:
 class NPC_Interactions {
   vector<NPC *> npcList;
   QuadTree<NPC> *Q;
+
 public:
   bool run = true;
   void AddNPC(NPC *npc) { npcList.push_back(npc); }
@@ -366,18 +374,17 @@ public:
     }
     return collisions;
   }
-  float calculateSentiment(){
-    float sentiment_total=0;
-    for(int i=0;i<npcList.size();i++){
-      sentiment_total+=npcList[i]->getSentiment();
+  float calculateSentiment() {
+    float sentiment_total = 0;
+    for (int i = 0; i < npcList.size(); i++) {
+      sentiment_total += npcList[i]->getSentiment();
     }
-    cout<<"SENTIMNET"<<sentiment_total<<endl;
     return sentiment_total;
   }
-  int calculateHealth(){
-    int health_total=0;
-    for(int i=0;i<npcList.size();i++){
-      health_total+=npcList[i]->getHealth();
+  int calculateHealth() {
+    int health_total = 0;
+    for (int i = 0; i < npcList.size(); i++) {
+      health_total += npcList[i]->getHealth();
     }
     return health_total;
   }
@@ -440,8 +447,8 @@ public:
     for (NPC *npc : npcList) {
       if (npc->getName() == target || npc->getOccupation() == target) {
         cout << "-----------------" << npc->getName() << endl;
-        npc->setSentiment(val);
-        EffectManager::addEffect(Crystal , npc->GetPosPointer() , 10);
+        npc->setSentiment(npc->getSentiment() + val);
+        EffectManager::addEffect(Crystal, npc->GetPosPointer(), 10);
       }
     }
   }
@@ -465,16 +472,19 @@ public:
     }
     delete Q;
   }
-  int getListsize(){
-    return npcList.size();
-  }
+  int getListsize() { return npcList.size(); }
 };
 
 class Game : public NPC_Interactions, public UI {
   static int death_count;
+
 public:
   Game() {}
-  void DrawUI() { UI::Draw(getListsize()-death_count,calculateHealth(),calculateSentiment(),getListsize());}
+  static int getDeath() { return death_count; };
+  void DrawUI() {
+    UI::Draw(getListsize() - death_count, calculateHealth(),
+             calculateSentiment(), getListsize());
+  }
   void DrawNPC() { NPC_Interactions::Draw(); }
   void Draw() {
     DrawNPC();
@@ -499,11 +509,11 @@ public:
             PlaySound(SoundMap::soundMap[Hit]);
             o.first->setState(hurt);
             if (o.first->getSentiment() > 0)
-              o.first->setHealth(15);
+              o.first->setHealth(35);
             else if (o.first->getSentiment() < 0)
-              o.first->setHealth(25);
+              o.first->setHealth(35);
             else
-              o.first->setHealth(10);
+              o.first->setHealth(30);
           } else if (o.first->getSentiment() < o.second->getSentiment()) {
             EffectManager::addEffect(Slash, o.first->GetPosPointer(), 10);
             PlaySound(SoundMap::soundMap[Attack]);
@@ -512,11 +522,11 @@ public:
             PlaySound(SoundMap::soundMap[Hit]);
             o.second->setState(hurt);
             if (o.second->getSentiment() > 0)
-              o.second->setHealth(15);
+              o.second->setHealth(35);
             else if (o.second->getSentiment() < 0)
               o.second->setHealth(25);
             else
-              o.second->setHealth(10);
+              o.second->setHealth(20);
           }
         }
         if (o.first->getHealth() == 0) {
@@ -530,6 +540,9 @@ public:
     }
   }
   void Update() {
+    if (death_count == getListsize() - 1) {
+      lastplayer = 1;
+    }
     if (UI::getPostedState()) {
       // Grab the second Noun
       // Grab the connect
@@ -547,7 +560,7 @@ public:
       vector<Point<NPC>> collided = QueryRec(captured);
       unordered_set<string> names;
       for (Point<NPC> npc : collided) {
-        if (npc.data->getState() == attack || npc.data->getState() == hurt){
+        if (npc.data->getState() == attack || npc.data->getState() == hurt) {
           names.insert(npc.data->getName());
           names.insert(npc.data->getOccupation());
         }
@@ -572,13 +585,7 @@ list<Effect> EffectManager::effectListUI;
 map<EffectType, Texture2D> EffectMap::effectMap;
 map<SoundType, Sound> SoundMap::soundMap;
 
-enum GameState{
-  mainScreen,
-  GameScreen,
-  optionsMenu,
-  quitGame,
-  PauseWindow
-};
+enum GameState { mainScreen, GameScreen, optionsMenu, quitGame, PauseWindow };
 int main() {
   InitWindow(width, height, "ChaosCraze");
   InitAudioDevice();
@@ -595,93 +602,112 @@ int main() {
   Game Game;
   CameraController c;
   Texture2D map;
-  map=LoadTexture("../assets/TileMap/PNG/Map2.png");
+  map = LoadTexture("../assets/Map0751.png");
   CollisionMapper::LoadCollisionMap();
   Texture2D logo;
-  logo=LoadTexture("../assets/Thing.png");
+  logo = LoadTexture("../assets/Thing.png");
   Texture2D main;
-  main=LoadTexture("../assets/mainscreen.png");
-  Texture2D optionwindow;
-  optionwindow=LoadTexture("../assets/optionScreen.png");
+  main = LoadTexture("../assets/mainscreen.png");
+  Texture2D optionwindow = LoadTexture("../assets/MEN_UUUUUU.png");
+  Texture2D optionBG = LoadTexture("../assets/untitled.png");
   NPC Boy("Boy", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
-  NPC Girl("Girl", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
+  NPC Girl("Girl", {100, 200}, 2, STATE::walk, -0.5, 0, "Villagers");
   NPC Old_Man("Old_man", {100, 200}, 2, STATE::walk, -0.8, 0, "Villagers");
-  NPC Man("Man", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
-  NPC Woman("Woman", {100, 200}, 2, STATE::walk, 0, 0, "Villagers");
-  
-  GameState currentState = mainScreen;
+  NPC Man("Man", {100, 200}, 2, STATE::walk, -0.5, 0, "Villagers");
+  NPC Woman("Woman", {100, 200}, 2, STATE::walk, -0.5, 0, "Villagers");
+  NPC Old_Woman("Old_woman", {100, 200}, 2, STATE::walk, -0.5, 0, "Villagers");
+  NPC Bob("Bob", {100, 200}, 2, STATE::walk, -0.5, 0, "Greenzone");
+  NPC Huffy("Huffy", {100, 200}, 2, STATE::walk, -0.5, 0, "Greenzone");
+  NPC Snuffy("Snuffy", {100, 200}, 2, STATE::walk, -0.5, 0, "Greenzone");
+  NPC GraveRobber("GraveRobber", {100, 200}, 2, STATE::walk, -0.5, 0,
+                  "MainCharacters");
+  NPC SteamMan("SteamMan", {100, 200}, 2, STATE::walk, -0.5, 0,
+               "MainCharacters");
+  NPC Woodcutter("Woodcutter", {100, 200}, 2, STATE::walk, -0.5, 0,
+                 "MainCharacters");
+  try {
+    Game.AddNPC(&Bob);
+    Game.AddNPC(&Huffy);
+    Game.AddNPC(&Snuffy);
+    Game.AddNPC(&GraveRobber);
+    Game.AddNPC(&SteamMan);
+    Game.AddNPC(&Woodcutter);
+    Game.AddNPC(&Old_Woman);
+    Game.AddNPC(&Boy);
+    Game.AddNPC(&Girl);
+    Game.AddNPC(&Old_Man);
+    Game.AddNPC(&Man);
+    Game.AddNPC(&Woman);
 
-  Game.AddNPC(&Boy);
-  Game.AddNPC(&Girl);
-  Game.AddNPC(&Old_Man);
-  Game.AddNPC(&Man);
-  Game.AddNPC(&Woman);
+  } catch (bad_alloc &e) {
+    cout << "Bad Allocation" << endl;
+  }
+  GameState currentState = mainScreen;
   Music music = LoadMusicStream("../assets/sound/CLassic.mp3");
   SetMusicVolume(music, 0.7);
   PlayMusicStream(music);
+  GuiVolumeBarState volumebarstate = InitGuiVolumeBar();
   // int stateC = 4;
   // STATE state_list[] = {idle, walk, attack, hurt, death};
   while (!WindowShouldClose()) {
     c.Control();
     UpdateMusicStream(music);
-    BeginDrawing();
-    ClearBackground(WHITE);
-    c.BeginCamera();
-    Game.DrawNPC();
-    // TODO: updateEffectUI and World 
-    EffectManager::updateEffects();
-    // CollisionMapper::DrawCollisionMap();
-    c.EndCamera();
-    Game.DrawUI();
-    EffectManager::updateEffectsUI();
-    EndDrawing();
     Game.HandleCapture();
-    BeginDrawing();
     ClearBackground(BLACK);
-    switch(currentState){
-      case mainScreen:
-      DrawTexture(main,0,0,WHITE);
+    switch (currentState) {
+    case mainScreen:
+      DrawTexture(main, 0, 0, WHITE);
       Game.DrawStartingMenu();
-      DrawTextureEx(logo,{145,10},0.0f,1,WHITE);
+      DrawTextureEx(logo, {145, 10}, 0.0f, 1, WHITE);
       Game.transition();
-      if(Game.isPressed1())
-      {
-        currentState=GameScreen;      
+      if (Game.isPressed1()) {
+        currentState = GameScreen;
       }
-      if(Game.isPressed2()){
-        currentState=optionsMenu;
+      if (Game.isPressed2()) {
+        currentState = optionsMenu;
       }
-      if(Game.isPressed3()){
-        currentState=quitGame;
+      if (Game.isPressed3()) {
+        currentState = quitGame;
       }
       break;
-      case optionsMenu:
+    case optionsMenu:
       ClearBackground(DARKGREEN);
+      DrawTexture(optionwindow, 0, 0, WHITE);
+      DrawTexture(optionBG, 226, 260, WHITE);
       Game.DrawAudioBox();
       GuiVolumeBar(&volumebarstate);
-      if(Game.isOk()){
-        currentState=mainScreen;
+      if (Game.isOkButtonPressed()) {
+        currentState = mainScreen;
       }
       break;
-      case GameScreen:
-      DrawTexture(map,10,10,WHITE);
-      Game.Draw();
+    case GameScreen:
+      c.BeginCamera();
+      DrawTexture(map, 0, 0, WHITE);
+      Game.DrawNPC();
+      // TODO: updateEffectUI and World
+      EffectManager::updateEffects();
+      // CollisionMapper::DrawCollisionMap();
+      c.EndCamera();
+      Game.DrawUI();
+      EffectManager::updateEffectsUI();
+      if (Game.ispressedPauseIcon()) {
+        currentState = PauseWindow;
+      }
       Game.Update();
-      if(statusBar.ispressedPauseIcon()){
-         currentState=PauseWindow;      
+      break;
+    case PauseWindow:
+      DrawTexture(main, 0, 0, WHITE);
+      Game.ShowStatus(Game.getListsize() - Game.getDeath(),
+                      Game.calculateHealth(), Game.calculateSentiment(),
+                      Game.getListsize());
+      if (Game.isResumePressed()) {
+        currentState = GameScreen;
+      }
+      if (Game.isExitPressed()) {
+        currentState = mainScreen;
       }
       break;
-      case PauseWindow:
-       DrawTexture(main,0,0,WHITE);
-      statusBar.ShowStatus(Game.getListsize()-Game.deathCount,Game.calculateHealth(),Game.calculateSentiment(),Game.getListsize());
-      if(statusBar.isResumePressed()){
-        currentState=GameScreen;
-      }
-      if(statusBar.isExitPressed()){
-        currentState=mainScreen;
-      }
-      break;
-      case quitGame:
+    case quitGame:
       CloseWindow();
       break;
     }

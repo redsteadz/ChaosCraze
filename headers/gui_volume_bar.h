@@ -101,7 +101,7 @@ GuiVolumeBarState InitGuiVolumeBar(void)
     GuiVolumeBarState state = { 0 };
 
     // Init anchors
-    state.anchor01 = (Vector2){ 400, 496 };            // ANCHOR ID:1
+    state.anchor01 = (Vector2){ 392, 496 };            // ANCHOR ID:1
     
     // Initilize controls variables
     state.Spinner002EditMode = false;

@@ -68,9 +68,8 @@ public:
 };
 
 class EffectManager {
-  static list<Effect> effectList; // Renamed from 'list' to 'effectList' to
-  static list<Effect> effectListUI; // Renamed from 'list' to 'effectList' to
-                                  // avoid conflicts with the STL list
+  static list<Effect> effectList; 
+  static list<Effect> effectListUI;
 
 public:
   static void addEffect(EffectType effect, Vector2 *position, int speed, bool Capture = false) {
@@ -83,7 +82,6 @@ public:
     effectListUI.push_back(
         e); // Using push_back() to add the effect to the end of the list
   }
-
   static void updateEffects() {
     for (auto it = effectList.begin(); it != effectList.end();) {
       Effect &e = *it;
