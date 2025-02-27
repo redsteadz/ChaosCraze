@@ -627,17 +627,17 @@ int main() {
                  "MainCharacters");
   try {
     Game.AddNPC(&Bob);
-    Game.AddNPC(&Huffy);
-    Game.AddNPC(&Snuffy);
-    Game.AddNPC(&GraveRobber);
-    Game.AddNPC(&SteamMan);
-    Game.AddNPC(&Woodcutter);
-    Game.AddNPC(&Old_Woman);
-    Game.AddNPC(&Boy);
-    Game.AddNPC(&Girl);
-    Game.AddNPC(&Old_Man);
-    Game.AddNPC(&Man);
-    Game.AddNPC(&Woman);
+    // Game.AddNPC(&Huffy);
+    // Game.AddNPC(&Snuffy);
+    // Game.AddNPC(&GraveRobber);
+    // Game.AddNPC(&SteamMan);
+    // Game.AddNPC(&Woodcutter);
+    // Game.AddNPC(&Old_Woman);
+    // Game.AddNPC(&Boy);
+    // Game.AddNPC(&Girl);
+    // Game.AddNPC(&Old_Man);
+    // Game.AddNPC(&Man);
+    // Game.AddNPC(&Woman);
 
   } catch (bad_alloc &e) {
     cout << "Bad Allocation" << endl;
