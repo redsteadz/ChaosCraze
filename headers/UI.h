@@ -322,8 +322,8 @@ public:
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
       // Update the Texture2D
       screenShot = LoadImageFromScreen();
-      if (IsImageReady(screenShot)) {
-        if (IsTextureReady(screenShotTexture))
+      if (IsImageValid(screenShot)) {
+        if (IsTextureValid(screenShotTexture))
           UnloadTexture(screenShotTexture);
         UnloadTexture(phoneWindowState.Image001);
         ImageCrop(&screenShot, rect);
@@ -362,7 +362,7 @@ public:
 
 private:
   void ResetCapture() {
-    if (IsTextureReady(screenShotTexture))
+    if (IsTextureValid(screenShotTexture))
       UnloadTexture(screenShotTexture);
     screenShot = LoadImage("../assets/DefaultCapture.png");
     ImageResize(&screenShot, 250, 180);

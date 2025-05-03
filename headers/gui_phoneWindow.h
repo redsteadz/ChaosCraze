@@ -19,7 +19,7 @@
  *
  **********************************************************************************************/
 
-#include "raylib.h"
+#include <raylib.h>
 
 // WARNING: raygui implementation is expected to be defined before including
 // this header
@@ -139,7 +139,7 @@ Rectangle GuiGetPhoneBox001(void) {
 static void Button005(int A, int B, int C, GuiPhoneWindowState &state) {
   // TODO: Implement control logic
   state.posted = 1;
-  if (IsTextureReady(state.Image001))
+  if (IsTextureValid(state.Image001))
     UnloadTexture(state.Image001);
   Image screenShot = LoadImage("../assets/DefaultCapture.png");
   ImageResize(&screenShot, 250, 180);
@@ -160,7 +160,7 @@ void GuiPhoneWindow(GuiPhoneWindowState *state) {
     GuiGroupBox(
         (Rectangle){state->anchor02.x + 24, state->anchor02.y + -160, 256, 200},
         "IMAGE");
-    if (IsTextureReady(state->Image001)) {
+    if (IsTextureValid(state->Image001)) {
       DrawTextureV(state->Image001,
                    Vector2{state->anchor02.x + 26, state->anchor02.y + -156},
                    WHITE);
